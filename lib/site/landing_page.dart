@@ -142,32 +142,6 @@ class LandingPage extends StatelessWidget {
             ),
           ),
 
-          // LEGAL (section milieu de page)
-          Section(
-            color: Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(I18n.t('legal_title'), style: Theme.of(context).textTheme.displayMedium),
-                const SizedBox(height: 12),
-                Wrap(spacing: 12, runSpacing: 12, children: [
-                  _legalButton(Icons.policy_outlined, I18n.t('legal_privacy'), () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()));
-                  }),
-                  _legalButton(Icons.rule_folder_outlined, I18n.t('legal_terms'), () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsScreen()));
-                  }),
-                  _legalButton(Icons.article_outlined, I18n.t('legal_mentions'), () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalNoticeScreen()));
-                  }),
-                  _legalButton(Icons.delete_forever_outlined, I18n.t('dp_title'), () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const DeletePolicyScreen()));
-                  }),
-                ]),
-              ],
-            ),
-          ),
-
           // FOOTER
           Section(
             child: Column(
