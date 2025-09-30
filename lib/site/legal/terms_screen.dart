@@ -4,24 +4,24 @@ import '../../i18n.dart';
 class TermsScreen extends StatelessWidget {
   const TermsScreen({super.key});
 
+  // 🔧 Constantes métier (utilisées comme placeholders dans i18n)
   static const _appName = 'Wordix';
   static const _companyName = 'MAHUGNON SERVICES LTD';
   static const _contactEmail = 'support@wordixapp.com';
   static const _privacyEmail = 'support@wordixapp.com';
 
-  Map<String, String> get _p => {
+  Map<String, String> get _params => {
     'app': _appName,
-    'company_name': _companyName,
-    'contact_email': _contactEmail,
-    'privacy_email': _privacyEmail,
+    'company': _companyName,
+    'contactEmail': _contactEmail,
+    'privacyEmail': _privacyEmail,
   };
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final date = _fmtDate(DateTime.now());
     return Scaffold(
-      appBar: AppBar(title: Text(I18n.t('terms_title'))),
+      appBar: AppBar(title: Text(I18n.t('legal_terms'))),
       body: SafeArea(
         child: Scrollbar(
           child: SingleChildScrollView(
@@ -29,24 +29,61 @@ class TermsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(I18n.t('terms_h1'), style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+                Text(I18n.t('terms_title'),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 16),
 
-                _Section(title: I18n.t('terms_accept_title'), children: [_pText(I18n.t('terms_accept_body', params: _p))]),
-                _Section(title: I18n.t('terms_access_title'), children: [_pText(I18n.t('terms_access_body'))]),
-                _Section(title: I18n.t('terms_license_title'), children: [_pText(I18n.t('terms_license_body', params: _p))]),
-                _Section(title: I18n.t('terms_conduct_title'), children: [_pText(I18n.t('terms_conduct_body'))]),
-                _Section(title: I18n.t('terms_features_title'), children: [_pText(I18n.t('terms_features_body', params: _p))]),
-                _Section(title: I18n.t('terms_data_title'), children: [_pText(I18n.t('terms_data_body', params: _p))]),
-                _Section(title: I18n.t('terms_updates_title'), children: [_pText(I18n.t('terms_updates_body'))]),
-                _Section(title: I18n.t('terms_liability_title'), children: [_pText(I18n.t('terms_liability_body', params: _p))]),
-                _Section(title: I18n.t('terms_termination_title'), children: [_pText(I18n.t('terms_termination_body'))]),
-                _Section(title: I18n.t('terms_changes_title'), children: [_pText(I18n.t('terms_changes_body'))]),
-                _Section(title: I18n.t('terms_law_title'), children: [_pText(I18n.t('terms_law_body'))]),
-                _Section(title: I18n.t('terms_contact_title'), children: [_pText(I18n.t('terms_contact_body', params: _p))]),
+                _Section(title: I18n.t('terms_s1_title'), children: [
+                  _p(I18n.t('terms_s1_p1', params: _params)),
+                ]),
+
+                _Section(title: I18n.t('terms_s2_title'), children: [
+                  _p(I18n.t('terms_s2_p1')),
+                ]),
+
+                _Section(title: I18n.t('terms_s3_title'), children: [
+                  _p(I18n.t('terms_s3_p1', params: _params)),
+                ]),
+
+                _Section(title: I18n.t('terms_s4_title'), children: [
+                  _p(I18n.t('terms_s4_p1')),
+                ]),
+
+                _Section(title: I18n.t('terms_s5_title'), children: [
+                  _p(I18n.t('terms_s5_p1', params: _params)),
+                ]),
+
+                _Section(title: I18n.t('terms_s6_title'), children: [
+                  _p(I18n.t('terms_s6_p1', params: _params)),
+                ]),
+
+                _Section(title: I18n.t('terms_s7_title'), children: [
+                  _p(I18n.t('terms_s7_p1')),
+                ]),
+
+                _Section(title: I18n.t('terms_s8_title'), children: [
+                  _p(I18n.t('terms_s8_p1', params: _params)),
+                ]),
+
+                _Section(title: I18n.t('terms_s9_title'), children: [
+                  _p(I18n.t('terms_s9_p1', params: _params)),
+                ]),
+
+                _Section(title: I18n.t('terms_s10_title'), children: [
+                  _p(I18n.t('terms_s10_p1')),
+                ]),
+
+                _Section(title: I18n.t('terms_s11_title'), children: [
+                  _p(I18n.t('terms_s11_p1')),
+                ]),
+
+                _Section(title: I18n.t('terms_s12_title'), children: [
+                  _p(I18n.t('terms_s12_p1', params: _params)),
+                ]),
 
                 const SizedBox(height: 24),
-                Text(I18n.t('last_update', params: {'date': date}), style: theme.textTheme.bodySmall),
+                Text('${I18n.t('privacy_last_update')} : ${_fmtDate(DateTime.now())}',
+                    style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -55,10 +92,11 @@ class TermsScreen extends StatelessWidget {
     );
   }
 
+  // --- helpers UI ---
   static String _fmtDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
-  static Widget _pText(String text) => Padding(
+  static Widget _p(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8),
     child: SelectableText(text),
   );

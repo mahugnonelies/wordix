@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
 import '../../i18n.dart';
 
-class LegalNoticeScreen extends StatelessWidget {
-  const LegalNoticeScreen({super.key});
+class DeletePolicyScreen extends StatelessWidget {
+  const DeletePolicyScreen({super.key});
 
   // 🔧 Renseigne ces constantes une fois pour toutes
   static const _appName = 'Wordix';
   static const _companyName = 'MAHUGNON SERVICES LTD';
-  static const _companyNumber = '16010860';
   static const _companyAddress =
       '20 Wenlock Road, London, N1 7GU, United Kingdom';
   static const _contactEmail = 'support@wordixapp.com';
-  static const _privacyEmail = 'support@wordixapp.com';
 
   Map<String, String> get _params => {
     'app': _appName,
     'company': _companyName,
-    'companyNumber': _companyNumber,
     'companyAddress': _companyAddress,
     'contactEmail': _contactEmail,
-    'privacyEmail': _privacyEmail,
   };
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(I18n.t('legal_mentions'))),
+      appBar: AppBar(title: Text(I18n.t('dp_title'))),
       body: SafeArea(
         child: Scrollbar(
           child: SingleChildScrollView(
@@ -34,56 +30,57 @@ class LegalNoticeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(I18n.t('ln_title', params: _params),
+                Text(I18n.t('dp_heading', params: _params),
                     style: theme.textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                Text(
+                  '${I18n.t('privacy_last_update')} : ${_fmtDate(DateTime.now())}',
+                  style: theme.textTheme.bodySmall,
+                ),
                 const SizedBox(height: 16),
 
-                _Section(title: I18n.t('ln_s1_title'), children: [
-                  _p(I18n.t('ln_s1_p0', params: _params)),
-                  _li(I18n.t('ln_s1_li1', params: _params)),
-                  _li(I18n.t('ln_s1_li2')),
-                  _li(I18n.t('ln_s1_li3', params: _params)),
-                  _li(I18n.t('ln_s1_li4', params: _params)),
-                  _li(I18n.t('ln_s1_li5', params: _params)),
+                // 1. Données concernées
+                _Section(title: I18n.t('dp_s1_title'), children: [
+                  _p(I18n.t('dp_s1_intro')),
+                  _li(I18n.t('dp_s1_li1')),
+                  _li(I18n.t('dp_s1_li2')),
+                  _li(I18n.t('dp_s1_li3')),
+                  _li(I18n.t('dp_s1_li4')),
                 ]),
 
-                _Section(title: I18n.t('ln_s2_title'), children: [
-                  _p(I18n.t('ln_s2_p_dist')),
-                  _li(I18n.t('ln_s2_li_play')),
-                  _li(I18n.t('ln_s2_li_appstore')),
-                  const SizedBox(height: 8),
-                  _p(I18n.t('ln_s2_p_backend')),
-                  _li(I18n.t('ln_s2_li_supabase')),
-                  _li(I18n.t('ln_s2_li_firebase')),
+                // 2. Procédure de demande
+                _Section(title: I18n.t('dp_s2_title'), children: [
+                  _p(I18n.t('dp_s2_intro', params: _params)),
+                  _li(I18n.t('dp_s2_step1', params: _params)),
+                  _li(I18n.t('dp_s2_step2')),
+                  _li(I18n.t('dp_s2_step3')),
                 ]),
 
-                _Section(title: I18n.t('ln_s3_title', params: _params), children: [
-                  _p(I18n.t('ln_s3_p1', params: _params)),
+                // 3. Délais de suppression
+                _Section(title: I18n.t('dp_s3_title'), children: [
+                  _li(I18n.t('dp_s3_li1')),
+                  _li(I18n.t('dp_s3_li2')),
                 ]),
 
-                _Section(title: I18n.t('ln_s4_title'), children: [
-                  _p(I18n.t('ln_s4_p1', params: _params)),
+                // 4. Données non supprimées immédiatement
+                _Section(title: I18n.t('dp_s4_title'), children: [
+                  _p(I18n.t('dp_s4_intro')),
+                  _li(I18n.t('dp_s4_li1')),
+                  _li(I18n.t('dp_s4_li2')),
                 ]),
 
-                _Section(title: I18n.t('ln_s5_title'), children: [
-                  _p(I18n.t('ln_s5_p_intro')),
-                  _p(I18n.t('ln_s5_p_resp', params: _params)),
-                  _p(I18n.t('ln_s5_p_basis')),
-                  _p(I18n.t('ln_s5_p_rights', params: _params)),
+                // 5. Irréversibilité
+                _Section(title: I18n.t('dp_s5_title'), children: [
+                  _p(I18n.t('dp_s5_p1')),
                 ]),
 
-                _Section(title: I18n.t('ln_s6_title'), children: [
-                  _p(I18n.t('ln_s6_p1')),
+                // 6. Contact
+                _Section(title: I18n.t('dp_s6_title'), children: [
+                  _p(I18n.t('dp_s6_intro')),
+                  _li(I18n.t('dp_s6_email', params: _params)),
+                  _li(I18n.t('dp_s6_address', params: _params)),
                 ]),
-
-                _Section(title: I18n.t('ln_s7_title'), children: [
-                  _p(I18n.t('ln_s7_p1')),
-                ]),
-
-                const SizedBox(height: 24),
-                Text('${I18n.t("privacy_last_update")} : ${_fmtDate(DateTime.now())}',
-                    style: theme.textTheme.bodySmall),
               ],
             ),
           ),

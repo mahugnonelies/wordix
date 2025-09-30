@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import '../i18n.dart';
 import 'components.dart';
 
+// ⬇️ Ajoutez ces imports vers vos pages légales .dart
+import '../site/legal/privacy_policy_screen.dart';
+import '../site/legal/terms_screen.dart';
+import '../site/legal/legal_notice_screen.dart';
+import '../site/legal/delete_policy_screen.dart';
+
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
 
@@ -68,8 +74,7 @@ class LandingPage extends StatelessWidget {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 onPressed: () {
-                                  // TODO: lien vers le repo/app web (autre projet)
-                                  // launchUrl(Uri.parse('https://<ton-user>.github.io/<repo-app>/'));
+                                  // TODO: lien vers l’app web (autre projet)
                                 },
                                 icon: const Icon(Icons.play_arrow_rounded),
                                 label: Text(I18n.t('cta_play')),
@@ -82,7 +87,7 @@ class LandingPage extends StatelessWidget {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
                                 onPressed: () {
-                                  // TODO: liens store (Google Play / App Store)
+                                  // TODO: liens store
                                 },
                                 icon: const Icon(Icons.download_rounded),
                                 label: Text(I18n.t('cta_download')),
@@ -137,7 +142,7 @@ class LandingPage extends StatelessWidget {
             ),
           ),
 
-          // LEGAL LINKS (liens externes vers site ou docs)
+          // LEGAL (section milieu de page)
           Section(
             color: Colors.white,
             child: Column(
@@ -147,11 +152,17 @@ class LandingPage extends StatelessWidget {
                 const SizedBox(height: 12),
                 Wrap(spacing: 12, runSpacing: 12, children: [
                   _legalButton(Icons.policy_outlined, I18n.t('legal_privacy'), () {
-                    // launchUrl(Uri.parse('https://.../privacy.html'));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()));
                   }),
-                  _legalButton(Icons.rule_folder_outlined, I18n.t('legal_terms'), () {}),
-                  _legalButton(Icons.article_outlined, I18n.t('legal_mentions'), () {}),
-                  _legalButton(Icons.info_outline, I18n.t('legal_about'), () {}),
+                  _legalButton(Icons.rule_folder_outlined, I18n.t('legal_terms'), () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsScreen()));
+                  }),
+                  _legalButton(Icons.article_outlined, I18n.t('legal_mentions'), () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalNoticeScreen()));
+                  }),
+                  _legalButton(Icons.delete_forever_outlined, I18n.t('dp_title'), () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const DeletePolicyScreen()));
+                  }),
                 ]),
               ],
             ),
@@ -163,8 +174,39 @@ class LandingPage extends StatelessWidget {
               children: [
                 const Divider(),
                 const SizedBox(height: 12),
-                Text('© ${DateTime.now().year} Wordix — ${I18n.t('footer_rights')}',
-                    style: const TextStyle(color: Colors.black54)),
+
+                // Mentions légales dans le footer (au-dessus des droits)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: [
+                    _footerLink(I18n.t('legal_privacy'), () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()));
+                    }),
+                    _dot(),
+                    _footerLink(I18n.t('legal_terms'), () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsScreen()));
+                    }),
+                    _dot(),
+                    _footerLink(I18n.t('legal_mentions'), () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalNoticeScreen()));
+                    }),
+                    _dot(),
+                    _footerLink(I18n.t('dp_title'), () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const DeletePolicyScreen()));
+                    }),
+                    _dot(),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  '© ${DateTime.now().year} Wordix — ${I18n.t('footer_rights')}',
+                  style: const TextStyle(color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),
@@ -184,4 +226,19 @@ class LandingPage extends StatelessWidget {
       ),
     );
   }
+
+  // --- Footer helpers ---
+  Widget _footerLink(String label, VoidCallback onTap) {
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        minimumSize: const Size(0, 0),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(label, style: const TextStyle(color: Colors.black87)),
+    );
+  }
+
+  Widget _dot() => const Text('•', style: TextStyle(color: Colors.black38));
 }
