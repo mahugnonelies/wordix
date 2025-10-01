@@ -97,7 +97,6 @@ class LandingPage extends StatelessWidget {
               children: const [
                 _ScreenshotsTitle(),
                 SizedBox(height: 12),
-                // ✅ Carrousel désormais sur TOUTES les tailles (téléphone + tablette + desktop)
                 _ResponsiveScreenshots(
                   images: [
                     'assets/screenshots/s1.png',
@@ -339,7 +338,6 @@ class _HeroImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isPhone = width < 700;
-
     final double maxCardWidth = isPhone ? width * 0.92 : 820;
 
     return Center(
@@ -399,8 +397,10 @@ class _FeatureCard extends StatelessWidget {
 }
 
 // ------------------------------------------------------------------
-// Screenshots adaptatifs : carrousel sur toutes tailles
-// Hauteur dynamique (selon ratio image) + bornes min/max.
+// Screenshots : carrousel sur toutes tailles
+// - Desktop/tablette large : 2 images par page, sans lignes/padding latéraux
+// - Mobile : 1 image par page
+// Hauteur dynamique d'après le(s) ratio(s) d'image.
 // ------------------------------------------------------------------
 
 class _ScreenshotsTitle extends StatelessWidget {
@@ -418,10 +418,9 @@ class _ResponsiveScreenshots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Center + largeur max pour desktop, le carrousel s'adapte à l'image
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: _ScreenshotCarousel(images: images),
       ),
     );
@@ -437,19 +436,30 @@ class _ScreenshotCarousel extends StatefulWidget {
 }
 
 class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
-  late final PageController _controller;
-  int _index = 0;
+  PageController? _controller;
+  int _pageIndex = 0;
   final Map<String, double> _ratios = {}; // path -> ratio
 
   @override
   void initState() {
     super.initState();
-    _controller = PageController(viewportFraction: .95);
     for (final p in widget.images) {
       _measureRatio(p).then((r) {
         if (mounted) setState(() => _ratios[p] = r);
       });
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _ensureController();
+  }
+
+  void _ensureController() {
+    final isWide = MediaQuery.of(context).size.width >= 900;
+    final viewport = isWide ? 1.0 : .95; // ✅ pas de lignes latérales sur desktop
+    _controller ??= PageController(viewportFraction: viewport);
   }
 
   Future<double> _measureRatio(String path) async {
@@ -461,30 +471,61 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
       completer.complete(info.image.width / info.image.height);
       stream.removeListener(l);
     }, onError: (e, s) {
-      completer.complete(9 / 16); // fallback
+      completer.complete(9 / 16);
       stream.removeListener(l);
     });
     stream.addListener(l);
     return completer.future;
   }
 
-  double _ratioFor(int i) => _ratios[widget.images[i]] ?? (9 / 16);
+  double _ratioOf(String path) => _ratios[path] ?? (9 / 16);
 
   void _to(int i) {
-    if (i < 0 || i >= widget.images.length) return;
-    _controller.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
+    final pageCount = _pageCount(context);
+    if (i < 0 || i >= pageCount) return;
+    _controller?.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
+  }
+
+  int _itemsPerPage(BuildContext ctx) => MediaQuery.of(ctx).size.width >= 900 ? 2 : 1;
+
+  int _pageCount(BuildContext ctx) {
+    final ipp = _itemsPerPage(ctx);
+    return ((widget.images.length + ipp - 1) / ipp).floor();
+    // équivalent à ceil()
   }
 
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width >= 900;
+    final ipp = _itemsPerPage(context);
+    final pages = _pageCount(context);
 
     return LayoutBuilder(builder: (_, constraints) {
-      final pageWidth = constraints.maxWidth * .95;     // même que viewportFraction
-      final ratio = _ratioFor(_index);                  // w/h
-      // hauteur = largeur / ratio, mais restreinte à [240, 600] pour desktop
-      final unclamped = pageWidth / ratio + 12;         // + padding visuel
-      final targetHeight = unclamped.clamp(240.0, 600.0);
+      final pageWidth = constraints.maxWidth * (isWide ? 1.0 : .95);
+      // Hauteur cible : max des hauteurs des images de la page courante
+      double calcHeightForPage(int page) {
+        final start = page * ipp;
+        final paths = List.generate(ipp, (k) => start + k)
+            .where((i) => i < widget.images.length)
+            .map((i) => widget.images[i])
+            .toList();
+
+        if (paths.isEmpty) return 300.0;
+
+        if (ipp == 1) {
+          final r = _ratioOf(paths.first);
+          return (pageWidth / r).clamp(220.0, 600.0);
+        } else {
+          // Deux images par page : largeur disponible par carte
+          const gap = 12.0;
+          final cardW = (pageWidth - gap) / 2;
+          final heights = paths.map((p) => cardW / _ratioOf(p)).toList();
+          final h = heights.reduce(math.max);
+          return h.clamp(260.0, 520.0);
+        }
+      }
+
+      final targetHeight = calcHeightForPage(_pageIndex);
 
       return Stack(
         alignment: Alignment.center,
@@ -497,39 +538,76 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
                 height: targetHeight,
                 child: PageView.builder(
                   controller: _controller,
-                  itemCount: widget.images.length,
-                  onPageChanged: (i) => setState(() => _index = i),
-                  itemBuilder: (_, i) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        color: Colors.black.withOpacity(.04),
-                        padding: const EdgeInsets.all(6),
-                        child: _SmartImage(
-                          widget.images[i],
-                          borderRadius: 12,
-                          background: Colors.white,
+                  itemCount: pages,
+                  onPageChanged: (i) => setState(() => _pageIndex = i),
+                  itemBuilder: (_, page) {
+                    final start = page * ipp;
+
+                    if (ipp == 1) {
+                      // ----- 1 image par page (mobile) -----
+                      final path = widget.images[start];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: _SmartImage(
+                            path,
+                            borderRadius: 16,
+                            background: Colors.white, // fond simple, pas de lignes
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
+                      );
+                    } else {
+                      // ----- 2 images par page (desktop) -----
+                      final leftPath = widget.images[start];
+                      final rightPath = (start + 1 < widget.images.length) ? widget.images[start + 1] : null;
+
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: _SmartImage(
+                                leftPath,
+                                borderRadius: 16,
+                                background: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: rightPath == null
+                                ? const SizedBox()
+                                : ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: _SmartImage(
+                                rightPath,
+                                borderRadius: 16,
+                                background: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 10),
+              // Indicateurs de page
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 8,
-                children: List.generate(widget.images.length, (i) {
-                  final isActive = i == _index;
+                children: List.generate(pages, (i) {
+                  final active = i == _pageIndex;
                   return GestureDetector(
                     onTap: () => _to(i),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       height: 8,
-                      width: isActive ? 28 : 10,
+                      width: active ? 28 : 10,
                       decoration: BoxDecoration(
-                        color: isActive ? const Color(0xFF0EA5E9) : Colors.black26,
+                        color: active ? const Color(0xFF0EA5E9) : Colors.black26,
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
@@ -539,23 +617,23 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
             ],
           ),
 
-          // Flèches de navigation sur grand écran
+          // Flèches de navigation visibles en large
           if (isWide) ...[
             Positioned(
-              left: 4,
+              left: 0,
               child: IconButton(
                 icon: const Icon(Icons.chevron_left_rounded, size: 36),
                 color: Colors.black54,
-                onPressed: () => _to(_index - 1),
+                onPressed: () => _to(_pageIndex - 1),
                 splashRadius: 24,
               ),
             ),
             Positioned(
-              right: 4,
+              right: 0,
               child: IconButton(
                 icon: const Icon(Icons.chevron_right_rounded, size: 36),
                 color: Colors.black54,
-                onPressed: () => _to(_index + 1),
+                onPressed: () => _to(_pageIndex + 1),
                 splashRadius: 24,
               ),
             ),
