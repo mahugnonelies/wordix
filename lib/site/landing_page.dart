@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../i18n.dart';
 import 'components.dart';
@@ -96,6 +97,7 @@ class LandingPage extends StatelessWidget {
               children: const [
                 _ScreenshotsTitle(),
                 SizedBox(height: 12),
+                // ✅ Carrousel désormais sur TOUTES les tailles (téléphone + tablette + desktop)
                 _ResponsiveScreenshots(
                   images: [
                     'assets/screenshots/s1.png',
@@ -133,6 +135,7 @@ class LandingPage extends StatelessWidget {
               children: [
                 const Divider(),
                 const SizedBox(height: 12),
+
                 Wrap(
                   alignment: WrapAlignment.center,
                   spacing: 12,
@@ -155,6 +158,7 @@ class LandingPage extends StatelessWidget {
                     }),
                   ],
                 ),
+
                 const SizedBox(height: 10),
                 Text(
                   '© ${DateTime.now().year} Wordix — ${I18n.t('footer_rights')}',
@@ -346,7 +350,6 @@ class _HeroImage extends StatelessWidget {
           borderRadius: 20,
           background: Colors.white.withOpacity(.08),
           showOverlay: true,
-          // fitMode: ImageFitMode.cover, // ← décommente si tu veux remplir quitte à rogner
         ),
       ),
     );
@@ -396,9 +399,8 @@ class _FeatureCard extends StatelessWidget {
 }
 
 // ------------------------------------------------------------------
-// Screenshots adaptatifs :
-//  - Carrousel UNIQUEMENT sur petits téléphones en portrait
-//  - Grille sur tablette/desktop/grands téléphones/landscape
+// Screenshots adaptatifs : carrousel sur toutes tailles
+// Hauteur dynamique (selon ratio image) + bornes min/max.
 // ------------------------------------------------------------------
 
 class _ScreenshotsTitle extends StatelessWidget {
@@ -416,39 +418,11 @@ class _ResponsiveScreenshots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    // ✅ Stricte: uniquement téléphone compact ET portrait
-    final bool isSmallPortraitPhone =
-        mq.orientation == Orientation.portrait && mq.size.shortestSide < 600;
-
-    if (isSmallPortraitPhone) {
-      return _ScreenshotCarousel(images: images);
-    }
-
-    // Grille (pas de carrousel côté ordinateur/tablette)
-    final cross = mq.size.width >= 900 ? 3 : 2;
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cross,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-      ),
-      itemCount: images.length,
-      itemBuilder: (_, i) => ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          color: Colors.black.withOpacity(.04),
-          padding: const EdgeInsets.all(6),
-          child: _SmartImage(
-            images[i],
-            borderRadius: 12,
-            background: Colors.white,
-            // fitMode: ImageFitMode.cover, // optionnel
-          ),
-        ),
+    // Center + largeur max pour desktop, le carrousel s'adapte à l'image
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100),
+        child: _ScreenshotCarousel(images: images),
       ),
     );
   }
@@ -497,64 +471,95 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   double _ratioFor(int i) => _ratios[widget.images[i]] ?? (9 / 16);
 
   void _to(int i) {
-    _controller.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+    if (i < 0 || i >= widget.images.length) return;
+    _controller.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (_, constraints) {
-      final pageWidth = constraints.maxWidth * .95; // viewportFraction
-      final ratio = _ratioFor(_index);
-      final targetHeight = pageWidth / ratio + 12; // +padding
+    final isWide = MediaQuery.of(context).size.width >= 900;
 
-      return Column(
+    return LayoutBuilder(builder: (_, constraints) {
+      final pageWidth = constraints.maxWidth * .95;     // même que viewportFraction
+      final ratio = _ratioFor(_index);                  // w/h
+      // hauteur = largeur / ratio, mais restreinte à [240, 600] pour desktop
+      final unclamped = pageWidth / ratio + 12;         // + padding visuel
+      final targetHeight = unclamped.clamp(240.0, 600.0);
+
+      return Stack(
+        alignment: Alignment.center,
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: double.infinity,
-            height: targetHeight,
-            child: PageView.builder(
-              controller: _controller,
-              itemCount: widget.images.length,
-              onPageChanged: (i) => setState(() => _index = i),
-              itemBuilder: (_, i) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    color: Colors.black.withOpacity(.04),
-                    padding: const EdgeInsets.all(6),
-                    child: _SmartImage(
-                      widget.images[i],
-                      borderRadius: 12,
-                      background: Colors.white,
-                      // fitMode: ImageFitMode.cover, // optionnel
+          Column(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: double.infinity,
+                height: targetHeight,
+                child: PageView.builder(
+                  controller: _controller,
+                  itemCount: widget.images.length,
+                  onPageChanged: (i) => setState(() => _index = i),
+                  itemBuilder: (_, i) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        color: Colors.black.withOpacity(.04),
+                        padding: const EdgeInsets.all(6),
+                        child: _SmartImage(
+                          widget.images[i],
+                          borderRadius: 12,
+                          background: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 10),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                children: List.generate(widget.images.length, (i) {
+                  final isActive = i == _index;
+                  return GestureDetector(
+                    onTap: () => _to(i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 8,
+                      width: isActive ? 28 : 10,
+                      decoration: BoxDecoration(
+                        color: isActive ? const Color(0xFF0EA5E9) : Colors.black26,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  );
+                }),
+              )
+            ],
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            children: List.generate(widget.images.length, (i) {
-              final isActive = i == _index;
-              return GestureDetector(
-                onTap: () => _to(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 8,
-                  width: isActive ? 28 : 10,
-                  decoration: BoxDecoration(
-                    color: isActive ? const Color(0xFF0EA5E9) : Colors.black26,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              );
-            }),
-          )
+
+          // Flèches de navigation sur grand écran
+          if (isWide) ...[
+            Positioned(
+              left: 4,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_left_rounded, size: 36),
+                color: Colors.black54,
+                onPressed: () => _to(_index - 1),
+                splashRadius: 24,
+              ),
+            ),
+            Positioned(
+              right: 4,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_right_rounded, size: 36),
+                color: Colors.black54,
+                onPressed: () => _to(_index + 1),
+                splashRadius: 24,
+              ),
+            ),
+          ],
         ],
       );
     });
@@ -626,7 +631,7 @@ class _SmartImage extends StatefulWidget {
         this.borderRadius = 16,
         this.background,
         this.showOverlay = false,
-        this.fitMode = ImageFitMode.contain, // change en cover si tu veux remplir quitte à rogner
+        this.fitMode = ImageFitMode.contain, // passer à cover pour remplir quitte à rogner
       });
 
   @override
@@ -696,7 +701,6 @@ class _SmartImageState extends State<_SmartImage> {
 
     Widget imageChild = Image.asset(widget.path);
 
-    // Choix du mode d'ajustement
     if (widget.fitMode == ImageFitMode.contain) {
       imageChild = FittedBox(fit: BoxFit.contain, alignment: Alignment.center, child: imageChild);
     } else if (widget.fitMode == ImageFitMode.cover) {
