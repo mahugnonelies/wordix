@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../i18n.dart';
 import 'components.dart';
@@ -64,7 +65,6 @@ class LandingPage extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  // Plus plat
                   childAspectRatio: 3.2,
                   children: const [
                     _FeatureCard(
@@ -96,7 +96,6 @@ class LandingPage extends StatelessWidget {
               children: const [
                 _ScreenshotsTitle(),
                 SizedBox(height: 12),
-                // Adaptive: carousel uniquement en portrait phone, sinon grille
                 _ResponsiveScreenshots(
                   images: [
                     'assets/screenshots/s1.png',
@@ -135,7 +134,6 @@ class LandingPage extends StatelessWidget {
                 const Divider(),
                 const SizedBox(height: 12),
 
-                // Mentions légales dans le footer (au-dessus des droits)
                 Wrap(
                   alignment: WrapAlignment.center,
                   spacing: 12,
@@ -202,7 +200,6 @@ class _HeroHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    // Breakpoints & tailles (évite les mots cassés sur mobile)
     final bool isDesktop = width >= 1100;
     final bool isTablet = width >= 700 && width < 1100;
     final bool isPhone = width < 700;
@@ -263,7 +260,6 @@ class _HeroHeader extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // Badges confiance
               Wrap(
                 alignment: isDesktop ? WrapAlignment.start : WrapAlignment.center,
                 spacing: 12,
@@ -280,7 +276,7 @@ class _HeroHeader extends StatelessWidget {
 
         SizedBox(width: isDesktop ? 28 : 0, height: isDesktop ? 0 : 28),
 
-        // Image Hero (mockup) — s'adapte au VRAI ratio de l'image, jamais rognée
+        // Image Hero (aucun crop, ratio natif)
         const Expanded(
           flex: 5,
           child: _HeroImage(),
@@ -297,9 +293,7 @@ class _HeroHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      onPressed: () {
-        // TODO: lien vers l’app web (autre projet)
-      },
+      onPressed: () {},
       icon: const Icon(Icons.play_arrow_rounded),
       label: Text(I18n.t('cta_play')),
     );
@@ -313,9 +307,7 @@ class _HeroHeader extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      onPressed: () {
-        // TODO: liens store
-      },
+      onPressed: () {},
       icon: const Icon(Icons.download_rounded),
       label: Text(I18n.t('cta_download')),
     );
@@ -346,21 +338,17 @@ class _HeroImage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final bool isPhone = width < 700;
 
-    // bornes raisonnables du cadre (max), mais la hauteur réelle suit le ratio de l’image
-    final double maxCardWidth  = 820;
-    final double maxCardHeight = isPhone ? width * 0.70 : width * 0.40;
+    final double maxCardWidth = isPhone ? width * 0.92 : 820;
 
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: maxCardWidth,
-          maxHeight: maxCardHeight,
-        ),
+        constraints: BoxConstraints(maxWidth: maxCardWidth),
         child: _SmartImage(
           'assets/images/hero_wordix.png',
           borderRadius: 20,
           background: Colors.white.withOpacity(.08),
           showOverlay: true,
+          // fitMode: ImageFitMode.cover, // ← décommente si tu veux remplir quitte à rogner
         ),
       ),
     );
@@ -377,7 +365,6 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      // padding réduit pour une carte moins haute
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: cs.surface,
@@ -389,12 +376,8 @@ class _FeatureCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: cs.primary.withOpacity(.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
+            height: 40, width: 40,
+            decoration: BoxDecoration(color: cs.primary.withOpacity(.12), borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: cs.primary, size: 22),
           ),
           const SizedBox(width: 12),
@@ -416,8 +399,8 @@ class _FeatureCard extends StatelessWidget {
 
 // ------------------------------------------------------------------
 // Screenshots adaptatifs :
-// - Téléphone portrait : carousel
-// - Sinon (tablette/desktop) : grille responsive, images non coupées
+// - Téléphone portrait : carrousel à hauteur dynamique
+// - Sinon : grille responsive, images non coupées
 // ------------------------------------------------------------------
 
 class _ScreenshotsTitle extends StatelessWidget {
@@ -425,8 +408,7 @@ class _ScreenshotsTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(I18n.t('screenshots_title'),
-        style: Theme.of(context).textTheme.displayMedium);
+    return Text(I18n.t('screenshots_title'), style: Theme.of(context).textTheme.displayMedium);
   }
 }
 
@@ -440,16 +422,10 @@ class _ResponsiveScreenshots extends StatelessWidget {
     final bool isPortraitPhone = size.width < size.height && size.width < 700;
 
     if (isPortraitPhone) {
-      // ----- Carousel phone portrait -----
       return _ScreenshotCarousel(images: images);
     }
 
-    // ----- Grid/tablette/desktop -----
-    final cross = size.width >= 1200
-        ? 3
-        : size.width >= 900
-        ? 3
-        : 2;
+    final cross = size.width >= 900 ? 3 : 2;
 
     return GridView.builder(
       shrinkWrap: true,
@@ -469,6 +445,7 @@ class _ResponsiveScreenshots extends StatelessWidget {
             images[i],
             borderRadius: 12,
             background: Colors.white,
+            // fitMode: ImageFitMode.cover, // optionnel
           ),
         ),
       ),
@@ -487,80 +464,99 @@ class _ScreenshotCarousel extends StatefulWidget {
 class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   late final PageController _controller;
   int _index = 0;
+  final Map<String, double> _ratios = {}; // path -> ratio
 
   @override
   void initState() {
     super.initState();
     _controller = PageController(viewportFraction: .95);
+    for (final p in widget.images) {
+      _measureRatio(p).then((r) {
+        if (mounted) setState(() => _ratios[p] = r);
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Future<double> _measureRatio(String path) async {
+    final completer = Completer<double>();
+    final provider = AssetImage(path);
+    final stream = provider.resolve(const ImageConfiguration());
+    late final ImageStreamListener l;
+    l = ImageStreamListener((info, _) {
+      completer.complete(info.image.width / info.image.height);
+      stream.removeListener(l);
+    }, onError: (e, s) {
+      completer.complete(9 / 16); // fallback
+      stream.removeListener(l);
+    });
+    stream.addListener(l);
+    return completer.future;
   }
+
+  double _ratioFor(int i) => _ratios[widget.images[i]] ?? (9 / 16);
 
   void _to(int i) {
-    _controller.animateToPage(
-      i,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    _controller.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    return LayoutBuilder(builder: (_, constraints) {
+      final pageWidth = constraints.maxWidth * .95; // viewportFraction
+      final ratio = _ratioFor(_index);
+      final targetHeight = pageWidth / ratio + 12; // +padding
 
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          // hauteur maximum, mais la hauteur réelle est pilotée par _SmartImage (ratio réel)
-          height: screenWidth * 0.70,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: widget.images.length,
-            onPageChanged: (i) => setState(() => _index = i),
-            itemBuilder: (_, i) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  color: Colors.black.withOpacity(.04),
-                  padding: const EdgeInsets.all(6),
-                  child: _SmartImage(
-                    widget.images[i],
-                    borderRadius: 12,
-                    background: Colors.white,
+      return Column(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: double.infinity,
+            height: targetHeight,
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.images.length,
+              onPageChanged: (i) => setState(() => _index = i),
+              itemBuilder: (_, i) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    color: Colors.black.withOpacity(.04),
+                    padding: const EdgeInsets.all(6),
+                    child: _SmartImage(
+                      widget.images[i],
+                      borderRadius: 12,
+                      background: Colors.white,
+                      // fitMode: ImageFitMode.cover, // optionnel
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
-          children: List.generate(widget.images.length, (i) {
-            final isActive = i == _index;
-            return GestureDetector(
-              onTap: () => _to(i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 8,
-                width: isActive ? 28 : 10,
-                decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFF0EA5E9) : Colors.black26,
-                  borderRadius: BorderRadius.circular(20),
+          const SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            children: List.generate(widget.images.length, (i) {
+              final isActive = i == _index;
+              return GestureDetector(
+                onTap: () => _to(i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 8,
+                  width: isActive ? 28 : 10,
+                  decoration: BoxDecoration(
+                    color: isActive ? const Color(0xFF0EA5E9) : Colors.black26,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
-              ),
-            );
-          }),
-        )
-      ],
-    );
+              );
+            }),
+          )
+        ],
+      );
+    });
   }
 }
 
@@ -602,9 +598,7 @@ class _CtaBanner extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            onPressed: () {
-              // TODO: action primaire (jouer/essayer)
-            },
+            onPressed: () {},
             icon: const Icon(Icons.play_arrow_rounded),
             label: Text(I18n.t('cta_play')),
           ),
@@ -614,22 +608,24 @@ class _CtaBanner extends StatelessWidget {
   }
 }
 
-/// ------------------------------------------------------------------
-/// _SmartImage : charge le ratio réel de l'image (assets) et crée un
-/// conteneur `AspectRatio` correspondant. L'image est affichée en
-/// BoxFit.contain → jamais rognée. Le cadre s'adapte à TOUT format.
-/// ------------------------------------------------------------------
+/// =====================
+///   SMART IMAGE
+/// =====================
+enum ImageFitMode { contain, cover, fill }
+
 class _SmartImage extends StatefulWidget {
   final String path;
   final double borderRadius;
   final Color? background;
   final bool showOverlay;
+  final ImageFitMode fitMode;
 
   const _SmartImage(
       this.path, {
         this.borderRadius = 16,
         this.background,
         this.showOverlay = false,
+        this.fitMode = ImageFitMode.contain, // change en cover si tu veux remplir quitte à rogner
       });
 
   @override
@@ -665,7 +661,7 @@ class _SmartImageState extends State<_SmartImage> {
       final h = info.image.height.toDouble();
       if (mounted) setState(() => _ratio = (h == 0) ? 1.0 : w / h);
     }, onError: (_, __) {
-      if (mounted) setState(() => _ratio = 9 / 16); // fallback
+      if (mounted) setState(() => _ratio = 9 / 16);
     });
     _stream!.addListener(_listener!);
   }
@@ -687,7 +683,6 @@ class _SmartImageState extends State<_SmartImage> {
   @override
   Widget build(BuildContext context) {
     if (_ratio == null) {
-      // Placeholder compact
       return Container(
         height: 220,
         decoration: BoxDecoration(
@@ -698,20 +693,24 @@ class _SmartImageState extends State<_SmartImage> {
       );
     }
 
+    Widget imageChild = Image.asset(widget.path);
+
+    // Choix du mode d'ajustement
+    if (widget.fitMode == ImageFitMode.contain) {
+      imageChild = FittedBox(fit: BoxFit.contain, alignment: Alignment.center, child: imageChild);
+    } else if (widget.fitMode == ImageFitMode.cover) {
+      imageChild = FittedBox(fit: BoxFit.cover, alignment: Alignment.center, child: imageChild);
+    } else {
+      imageChild = FittedBox(fit: BoxFit.fill, alignment: Alignment.center, child: imageChild);
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
       child: Stack(
         fit: StackFit.passthrough,
         children: [
           Container(color: widget.background ?? Colors.transparent),
-          AspectRatio(
-            aspectRatio: _ratio!,
-            child: FittedBox(
-              fit: BoxFit.contain, // ✅ aucune découpe
-              alignment: Alignment.center,
-              child: Image.asset(widget.path),
-            ),
-          ),
+          AspectRatio(aspectRatio: _ratio!, child: imageChild),
           if (widget.showOverlay)
             IgnorePointer(
               child: Container(
