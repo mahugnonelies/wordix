@@ -50,7 +50,7 @@ jobs:
 
       # Domaine personnalisé
       - name: Add CNAME (custom domain)
-        run: echo "maellso.com" > build/web/CNAME
+        run: echo "wordixapp.com" > build/web/CNAME
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
