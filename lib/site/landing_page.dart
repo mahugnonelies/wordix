@@ -133,7 +133,6 @@ class LandingPage extends StatelessWidget {
               children: [
                 const Divider(),
                 const SizedBox(height: 12),
-
                 Wrap(
                   alignment: WrapAlignment.center,
                   spacing: 12,
@@ -156,7 +155,6 @@ class LandingPage extends StatelessWidget {
                     }),
                   ],
                 ),
-
                 const SizedBox(height: 10),
                 Text(
                   '© ${DateTime.now().year} Wordix — ${I18n.t('footer_rights')}',
@@ -399,8 +397,8 @@ class _FeatureCard extends StatelessWidget {
 
 // ------------------------------------------------------------------
 // Screenshots adaptatifs :
-// - Téléphone portrait : carrousel à hauteur dynamique
-// - Sinon : grille responsive, images non coupées
+//  - Carrousel UNIQUEMENT sur petits téléphones en portrait
+//  - Grille sur tablette/desktop/grands téléphones/landscape
 // ------------------------------------------------------------------
 
 class _ScreenshotsTitle extends StatelessWidget {
@@ -418,14 +416,17 @@ class _ResponsiveScreenshots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final bool isPortraitPhone = size.width < size.height && size.width < 700;
+    final mq = MediaQuery.of(context);
+    // ✅ Stricte: uniquement téléphone compact ET portrait
+    final bool isSmallPortraitPhone =
+        mq.orientation == Orientation.portrait && mq.size.shortestSide < 600;
 
-    if (isPortraitPhone) {
+    if (isSmallPortraitPhone) {
       return _ScreenshotCarousel(images: images);
     }
 
-    final cross = size.width >= 900 ? 3 : 2;
+    // Grille (pas de carrousel côté ordinateur/tablette)
+    final cross = mq.size.width >= 900 ? 3 : 2;
 
     return GridView.builder(
       shrinkWrap: true,
