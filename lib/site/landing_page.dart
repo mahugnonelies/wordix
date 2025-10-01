@@ -398,9 +398,11 @@ class _FeatureCard extends StatelessWidget {
 
 // ------------------------------------------------------------------
 // Screenshots : carrousel sur toutes tailles
-// - Desktop/tablette large : 2 images par page, sans lignes/padding latéraux
-// - Mobile : 1 image par page
-// Hauteur dynamique d'après le(s) ratio(s) d'image.
+// - Desktop très large (≥1200px) : 3 images / page
+// - Tablette & desktop moyen (≥900px) : 2 images / page
+// - Mobile : 1 image / page
+// Aucune "ligne" latérale en large (viewport plein).
+// Hauteur dynamique d'après le(s) ratio(s).
 // ------------------------------------------------------------------
 
 class _ScreenshotsTitle extends StatelessWidget {
@@ -457,7 +459,8 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   }
 
   void _ensureController() {
-    final isWide = MediaQuery.of(context).size.width >= 900;
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width >= 900;
     final viewport = isWide ? 1.0 : .95; // ✅ pas de lignes latérales sur desktop
     _controller ??= PageController(viewportFraction: viewport);
   }
@@ -486,23 +489,29 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
     _controller?.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
   }
 
-  int _itemsPerPage(BuildContext ctx) => MediaQuery.of(ctx).size.width >= 900 ? 2 : 1;
+  // → 3 / page en ≥1200px, 2 / page en ≥900px, sinon 1
+  int _itemsPerPage(BuildContext ctx) {
+    final w = MediaQuery.of(ctx).size.width;
+    if (w >= 1200) return 3;
+    if (w >= 900) return 2;
+    return 1;
+  }
 
   int _pageCount(BuildContext ctx) {
     final ipp = _itemsPerPage(ctx);
     return ((widget.images.length + ipp - 1) / ipp).floor();
-    // équivalent à ceil()
   }
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width >= 900;
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width >= 900;
     final ipp = _itemsPerPage(context);
     final pages = _pageCount(context);
 
     return LayoutBuilder(builder: (_, constraints) {
       final pageWidth = constraints.maxWidth * (isWide ? 1.0 : .95);
-      // Hauteur cible : max des hauteurs des images de la page courante
+
       double calcHeightForPage(int page) {
         final start = page * ipp;
         final paths = List.generate(ipp, (k) => start + k)
@@ -516,12 +525,15 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
           final r = _ratioOf(paths.first);
           return (pageWidth / r).clamp(220.0, 600.0);
         } else {
-          // Deux images par page : largeur disponible par carte
+          // n images par page : largeur par carte = (pageWidth - gaps) / n
           const gap = 12.0;
-          final cardW = (pageWidth - gap) / 2;
+          final totalGaps = gap * (paths.length - 1);
+          final cardW = (pageWidth - totalGaps) / paths.length;
           final heights = paths.map((p) => cardW / _ratioOf(p)).toList();
           final h = heights.reduce(math.max);
-          return h.clamp(260.0, 520.0);
+          final minH = (ipp == 3) ? 220.0 : 260.0;
+          final maxH = (ipp == 3) ? 460.0 : 520.0;
+          return h.clamp(minH, maxH);
         }
       }
 
@@ -553,42 +565,36 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
                           child: _SmartImage(
                             path,
                             borderRadius: 16,
-                            background: Colors.white, // fond simple, pas de lignes
+                            background: Colors.white,
                           ),
                         ),
                       );
                     } else {
-                      // ----- 2 images par page (desktop) -----
-                      final leftPath = widget.images[start];
-                      final rightPath = (start + 1 < widget.images.length) ? widget.images[start + 1] : null;
+                      // ----- 2 ou 3 images par page (tablette/desktop) -----
+                      final paths = List.generate(ipp, (k) => start + k)
+                          .where((i) => i < widget.images.length)
+                          .map((i) => widget.images[i])
+                          .toList();
 
-                      return Row(
-                        children: [
+                      const gap = 12.0;
+                      final children = <Widget>[];
+                      for (int i = 0; i < paths.length; i++) {
+                        if (i > 0) children.add(const SizedBox(width: gap));
+                        children.add(
                           Expanded(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: _SmartImage(
-                                leftPath,
+                                paths[i],
                                 borderRadius: 16,
                                 background: Colors.white,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: rightPath == null
-                                ? const SizedBox()
-                                : ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: _SmartImage(
-                                rightPath,
-                                borderRadius: 16,
-                                background: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
+                        );
+                      }
+
+                      return Row(children: children);
                     }
                   },
                 ),
