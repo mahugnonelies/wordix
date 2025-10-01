@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../i18n.dart';
 import 'components.dart';
 
-// Légales .dart (nouveaux chemins)
+// Légales .dart
 import '../site/legal/privacy_policy_screen.dart';
 import '../site/legal/terms_screen.dart';
 import '../site/legal/legal_notice_screen.dart';
@@ -26,10 +26,10 @@ class LandingPage extends StatelessWidget {
               PopupMenuItem(value: 'fr', child: Text(I18n.t('language_french'))),
               PopupMenuItem(value: 'en', child: Text(I18n.t('language_english'))),
             ],
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
-                children: [Icon(Icons.language), SizedBox(width: 6), Icon(Icons.arrow_drop_down)],
+                children: const [Icon(Icons.language), SizedBox(width: 6), Icon(Icons.arrow_drop_down)],
               ),
             ),
           ),
@@ -280,7 +280,7 @@ class _HeroHeader extends StatelessWidget {
 
         SizedBox(width: isDesktop ? 28 : 0, height: isDesktop ? 0 : 28),
 
-        // Image Hero (mockup) — pas de crop
+        // Image Hero (mockup) — s'adapte au VRAI ratio de l'image, jamais rognée
         const Expanded(
           flex: 5,
           child: _HeroImage(),
@@ -346,8 +346,9 @@ class _HeroImage extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final bool isPhone = width < 700;
 
-    final double maxCardWidth = 820;
-    final double maxCardHeight = isPhone ? width * 0.55 : width * 0.38;
+    // bornes raisonnables du cadre (max), mais la hauteur réelle suit le ratio de l’image
+    final double maxCardWidth  = 820;
+    final double maxCardHeight = isPhone ? width * 0.70 : width * 0.40;
 
     return Center(
       child: ConstrainedBox(
@@ -355,36 +356,11 @@ class _HeroImage extends StatelessWidget {
           maxWidth: maxCardWidth,
           maxHeight: maxCardHeight,
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(.08),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white24),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  'assets/images/hero_wordix.png',
-                  fit: BoxFit.contain, // ✅ jamais rognée
-                  alignment: Alignment.center,
-                ),
-                IgnorePointer(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.transparent, Colors.black.withOpacity(.08)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        child: _SmartImage(
+          'assets/images/hero_wordix.png',
+          borderRadius: 20,
+          background: Colors.white.withOpacity(.08),
+          showOverlay: true,
         ),
       ),
     );
@@ -407,7 +383,7 @@ class _FeatureCard extends StatelessWidget {
         color: cs.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.black.withOpacity(.05)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 10, offset: Offset(0, 6))],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 10, offset: const Offset(0, 6))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,10 +425,8 @@ class _ScreenshotsTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      I18n.t('screenshots_title'),
-      style: Theme.of(context).textTheme.displayMedium,
-    );
+    return Text(I18n.t('screenshots_title'),
+        style: Theme.of(context).textTheme.displayMedium);
   }
 }
 
@@ -476,7 +450,6 @@ class _ResponsiveScreenshots extends StatelessWidget {
         : size.width >= 900
         ? 3
         : 2;
-    final tileMaxH = size.width >= 900 ? 320.0 : 260.0;
 
     return GridView.builder(
       shrinkWrap: true,
@@ -485,27 +458,17 @@ class _ResponsiveScreenshots extends StatelessWidget {
         crossAxisCount: cross,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
-        childAspectRatio: 16 / 10,
       ),
       itemCount: images.length,
       itemBuilder: (_, i) => ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          constraints: BoxConstraints(maxHeight: tileMaxH),
           color: Colors.black.withOpacity(.04),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Image.asset(
-                images[i],
-                fit: BoxFit.contain, // ✅ jamais rognée
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (_, __, ___) => const Center(
-                  child: Text('🖼️ Screenshot', style: TextStyle(color: Colors.black54)),
-                ),
-              ),
-            ),
+          padding: const EdgeInsets.all(6),
+          child: _SmartImage(
+            images[i],
+            borderRadius: 12,
+            background: Colors.white,
           ),
         ),
       ),
@@ -553,7 +516,8 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
       children: [
         SizedBox(
           width: double.infinity,
-          height: screenWidth * 0.6, // hauteur proportionnelle à l’écran
+          // hauteur maximum, mais la hauteur réelle est pilotée par _SmartImage (ratio réel)
+          height: screenWidth * 0.70,
           child: PageView.builder(
             controller: _controller,
             itemCount: widget.images.length,
@@ -564,14 +528,11 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
                   color: Colors.black.withOpacity(.04),
-                  child: Image.asset(
+                  padding: const EdgeInsets.all(6),
+                  child: _SmartImage(
                     widget.images[i],
-                    fit: BoxFit.contain, // ✅ adapte sans couper
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (_, __, ___) => const Center(
-                      child: Text('🖼️ Screenshot', style: TextStyle(color: Colors.black54)),
-                    ),
+                    borderRadius: 12,
+                    background: Colors.white,
                   ),
                 ),
               ),
@@ -650,5 +611,121 @@ class _CtaBanner extends StatelessWidget {
         ],
       );
     });
+  }
+}
+
+/// ------------------------------------------------------------------
+/// _SmartImage : charge le ratio réel de l'image (assets) et crée un
+/// conteneur `AspectRatio` correspondant. L'image est affichée en
+/// BoxFit.contain → jamais rognée. Le cadre s'adapte à TOUT format.
+/// ------------------------------------------------------------------
+class _SmartImage extends StatefulWidget {
+  final String path;
+  final double borderRadius;
+  final Color? background;
+  final bool showOverlay;
+
+  const _SmartImage(
+      this.path, {
+        this.borderRadius = 16,
+        this.background,
+        this.showOverlay = false,
+      });
+
+  @override
+  State<_SmartImage> createState() => _SmartImageState();
+}
+
+class _SmartImageState extends State<_SmartImage> {
+  ImageStream? _stream;
+  ImageStreamListener? _listener;
+  double? _ratio; // width / height
+
+  @override
+  void initState() {
+    super.initState();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SmartImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.path != widget.path) {
+      _disposeStream();
+      _ratio = null;
+      _resolve();
+    }
+  }
+
+  void _resolve() {
+    final provider = AssetImage(widget.path);
+    _stream = provider.resolve(const ImageConfiguration());
+    _listener = ImageStreamListener((info, _) {
+      final w = info.image.width.toDouble();
+      final h = info.image.height.toDouble();
+      if (mounted) setState(() => _ratio = (h == 0) ? 1.0 : w / h);
+    }, onError: (_, __) {
+      if (mounted) setState(() => _ratio = 9 / 16); // fallback
+    });
+    _stream!.addListener(_listener!);
+  }
+
+  void _disposeStream() {
+    if (_stream != null && _listener != null) {
+      _stream!.removeListener(_listener!);
+    }
+    _stream = null;
+    _listener = null;
+  }
+
+  @override
+  void dispose() {
+    _disposeStream();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_ratio == null) {
+      // Placeholder compact
+      return Container(
+        height: 220,
+        decoration: BoxDecoration(
+          color: (widget.background ?? Colors.black.withOpacity(.04)),
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+        ),
+        child: const Center(child: SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 2))),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.borderRadius),
+      child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          Container(color: widget.background ?? Colors.transparent),
+          AspectRatio(
+            aspectRatio: _ratio!,
+            child: FittedBox(
+              fit: BoxFit.contain, // ✅ aucune découpe
+              alignment: Alignment.center,
+              child: Image.asset(widget.path),
+            ),
+          ),
+          if (widget.showOverlay)
+            IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.transparent, Colors.black.withOpacity(.08)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
