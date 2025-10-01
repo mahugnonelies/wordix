@@ -296,6 +296,36 @@ class I18n {
       'dp_s6_email': '📧 {contactEmail}',
       'dp_s6_address': '🏢 {company} – {companyAddress}',
 
+      'hero_title': 'Wordix – Le jeu de lettres éducatif',
+      'hero_subtitle': 'Amusez-vous en apprenant avec des puzzles de mots en français et en anglais.',
+      'cta_play': 'Jouer maintenant',
+      'cta_download': 'Télécharger',
+
+      'screenshots_title': 'Captures d’écran',
+      'features_title': 'Fonctionnalités principales',
+      'feature_i18n': 'Traduction automatique',
+      'feature_i18n_desc': 'Disponible en français et en anglais selon la langue du téléphone.',
+      'feature_gameplay': 'Gameplay ludique',
+      'feature_gameplay_desc': 'Des puzzles de mots dynamiques avec progression par niveaux.',
+      'feature_progress': 'Suivi des progrès',
+      'feature_progress_desc': 'Votre progression est sauvegardée et visible à tout moment.',
+
+      'badge_secure': 'Sécurisé ({x})',
+      'badge_updates': 'Mises à jour ({x})',
+      'badge_rating': 'Note ({x})',
+
+      'cta_banner_title': 'Prêt à entraîner votre esprit ?',
+      'cta_banner_subtitle': 'Des puzzles progressifs, fun et éducatifs, accessibles partout.',
+
+      'legal_title': 'Mentions légales & documents',
+      'legal_privacy': 'Politique de confidentialité',
+      'legal_terms': 'Conditions d’utilisation',
+      'legal_mentions': 'Mentions légales',
+      'dp_title': 'Suppression des données',
+      'legal_about': 'À propos',
+      'footer_rights': 'Tous droits réservés',
+
+
     },
 
     'en': {
@@ -544,6 +574,36 @@ class I18n {
       'dp_s6_intro': 'For any questions about this policy or your rights:',
       'dp_s6_email': '📧 {contactEmail}',
       'dp_s6_address': '🏢 {company} – {companyAddress}',
+
+      'hero_title': 'Wordix – The Educational Word Puzzle Game',
+      'hero_subtitle': 'Have fun while learning with word puzzles in French and English.',
+      'cta_play': 'Play Now',
+      'cta_download': 'Download',
+
+      'screenshots_title': 'Screenshots',
+      'features_title': 'Key Features',
+      'feature_i18n': 'Auto Translation',
+      'feature_i18n_desc': 'Available in French and English depending on phone language.',
+      'feature_gameplay': 'Fun Gameplay',
+      'feature_gameplay_desc': 'Dynamic word puzzles with progressive levels.',
+      'feature_progress': 'Track Progress',
+      'feature_progress_desc': 'Your progress is saved and visible at any time.',
+
+      'badge_secure': 'Secure ({x})',
+      'badge_updates': 'Updates ({x})',
+      'badge_rating': 'Rating ({x})',
+
+      'cta_banner_title': 'Ready to train your mind?',
+      'cta_banner_subtitle': 'Progressive, fun, and educational puzzles, accessible everywhere.',
+
+      'legal_title': 'Legal & Documents',
+      'legal_privacy': 'Privacy Policy',
+      'legal_terms': 'Terms of Use',
+      'legal_mentions': 'Legal Notice',
+      'dp_title': 'Data Deletion Policy',
+      'legal_about': 'About',
+      'footer_rights': 'All rights reserved',
+
 
     },
   };

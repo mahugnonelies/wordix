@@ -22,4 +22,8 @@ flutter:
   uses-material-design: true
   assets:
     # si tu veux des images/screenshots sur le site
-    - assets/images/
+
+    - assets/images/hero_wordix.png
+    - assets/screenshots/s1.png
+    - assets/screenshots/s2.png
+    - assets/screenshots/s3.png
