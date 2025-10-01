@@ -48,12 +48,10 @@ class LandingPage extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Section(
-              child: _HeroHeader(),
-            ),
+            child: Section(child: _HeroHeader()),
           ),
 
-          // ----- FEATURES (refonte visuelle) -----
+          // ----- FEATURES (hauteur réduite) -----
           Section(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,6 +64,8 @@ class LandingPage extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
+                  // ⬇️ Rend les cartes plus plates (plus la valeur est grande, plus c'est plat)
+                  childAspectRatio: 3.2,
                   children: const [
                     _FeatureCard(
                       icon: Icons.translate_rounded,
@@ -205,12 +205,8 @@ class _HeroHeader extends StatelessWidget {
     final bool isTablet = width >= 700 && width < 1100;
     final bool isPhone = width < 700;
 
-    final double titleSize = isDesktop
-        ? 64
-        : (isTablet ? 46 : 34); // tailles adaptées Android phones + tablettes
-    final double subtitleSize = isDesktop
-        ? 18
-        : (isTablet ? 16 : 15);
+    final double titleSize = isDesktop ? 64 : (isTablet ? 46 : 34);
+    final double subtitleSize = isDesktop ? 18 : (isTablet ? 16 : 15);
     final double ctaSpacing = isPhone ? 10 : 12;
 
     final Axis dir = isDesktop ? Axis.horizontal : Axis.vertical;
@@ -225,7 +221,6 @@ class _HeroHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: isDesktop ? CrossAxisAlignment.start : CrossAxisAlignment.center,
             children: [
-              // Contrainte de largeur pour éviter des lignes trop longues
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: isDesktop ? 720 : 560),
                 child: Text(
@@ -299,7 +294,6 @@ class _HeroHeader extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // 👉 remplace par ton image hero
                     Image.asset(
                       'assets/images/hero_wordix.png',
                       fit: BoxFit.cover,
@@ -307,7 +301,6 @@ class _HeroHeader extends StatelessWidget {
                         child: Text('📸 Hero image', style: TextStyle(color: Colors.white)),
                       ),
                     ),
-                    // Légère overlay
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -386,33 +379,34 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(18),
+      // ⬇️ padding réduit pour une carte moins haute
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.black.withOpacity(.05)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 12, offset: const Offset(0, 6))],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 10, offset: const Offset(0, 6))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 44,
-            width: 44,
+            height: 40,
+            width: 40,
             decoration: BoxDecoration(
               color: cs.primary.withOpacity(.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: cs.primary),
+            child: Icon(icon, color: cs.primary, size: 22),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(I18n.t(titleKey), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                const SizedBox(height: 6),
-                Text(I18n.t(subtitleKey), style: const TextStyle(color: Colors.black54)),
+                Text(I18n.t(titleKey), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                const SizedBox(height: 4),
+                Text(I18n.t(subtitleKey), style: const TextStyle(color: Colors.black54, height: 1.25)),
               ],
             ),
           ),
