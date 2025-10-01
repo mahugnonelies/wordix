@@ -48,7 +48,7 @@ class LandingPage extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Section(child: _HeroHeader()),
+            child: const Section(child: _HeroHeader()),
           ),
 
           // ----- FEATURES (hauteur réduite) -----
@@ -64,7 +64,7 @@ class LandingPage extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  // ⬇️ Rend les cartes plus plates (plus la valeur est grande, plus c'est plat)
+                  // Plus plat
                   childAspectRatio: 3.2,
                   children: const [
                     _FeatureCard(
@@ -93,10 +93,12 @@ class LandingPage extends StatelessWidget {
             color: Colors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(I18n.t('screenshots_title'), style: Theme.of(context).textTheme.displayMedium),
-                const SizedBox(height: 12),
-                const _ScreenshotCarousel(
+              children: const [
+                // Titre
+                _ScreenshotsTitle(),
+                SizedBox(height: 12),
+                // Adaptive: carousel uniquement en portrait phone, sinon grille
+                _ResponsiveScreenshots(
                   images: [
                     'assets/screenshots/s1.png',
                     'assets/screenshots/s2.png',
@@ -121,7 +123,7 @@ class LandingPage extends StatelessWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: _CtaBanner(),
+                child: const _CtaBanner(),
               ),
             ),
           ),
@@ -155,7 +157,6 @@ class LandingPage extends StatelessWidget {
                     _footerLink(I18n.t('dp_title'), (context) {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const DeletePolicyScreen()));
                     }),
-                    _dot(),
                   ],
                 ),
 
@@ -196,6 +197,8 @@ class LandingPage extends StatelessWidget {
 // ======================================================
 
 class _HeroHeader extends StatelessWidget {
+  const _HeroHeader();
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -278,43 +281,10 @@ class _HeroHeader extends StatelessWidget {
 
         SizedBox(width: isDesktop ? 28 : 0, height: isDesktop ? 0 : 28),
 
-        // Image Hero (mockup)
-        Expanded(
+        // Image Hero (mockup) — pas de crop
+        const Expanded(
           flex: 5,
-          child: AspectRatio(
-            aspectRatio: isPhone ? 4 / 3 : 16 / 10, // ratio plus haut sur mobile
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(
-                      'assets/images/hero_wordix.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Center(
-                        child: Text('📸 Hero image', style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.transparent, Colors.black.withOpacity(.25)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          child: _HeroImage(),
         ),
       ],
     );
@@ -369,6 +339,59 @@ class _HeroHeader extends StatelessWidget {
   }
 }
 
+class _HeroImage extends StatelessWidget {
+  const _HeroImage();
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isPhone = width < 700;
+
+    final double maxCardWidth = 820;
+    final double maxCardHeight = isPhone ? width * 0.55 : width * 0.38;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: maxCardWidth,
+          maxHeight: maxCardHeight,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(.08),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white24),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  'assets/images/hero_wordix.png',
+                  fit: BoxFit.contain, // ✅ jamais rognée
+                  alignment: Alignment.center,
+                ),
+                IgnorePointer(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.black.withOpacity(.08)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FeatureCard extends StatelessWidget {
   final IconData icon;
   final String titleKey;
@@ -379,7 +402,7 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      // ⬇️ padding réduit pour une carte moins haute
+      // padding réduit pour une carte moins haute
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: cs.surface,
@@ -416,6 +439,79 @@ class _FeatureCard extends StatelessWidget {
   }
 }
 
+// ------------------------------------------------------------------
+// Screenshots adaptatifs :
+// - Téléphone portrait : carousel
+// - Sinon (tablette/desktop) : grille responsive, images non coupées
+// ------------------------------------------------------------------
+
+class _ScreenshotsTitle extends StatelessWidget {
+  const _ScreenshotsTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(I18n.t('screenshots_title'),
+        style: Theme.of(context).textTheme.displayMedium);
+  }
+}
+
+class _ResponsiveScreenshots extends StatelessWidget {
+  final List<String> images;
+  const _ResponsiveScreenshots({required this.images});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final bool isPortraitPhone = size.width < size.height && size.width < 700;
+
+    if (isPortraitPhone) {
+      // ----- Carousel phone portrait -----
+      return _ScreenshotCarousel(images: images);
+    }
+
+    // ----- Grid/tablette/desktop -----
+    final cross = size.width >= 1200
+        ? 3
+        : size.width >= 900
+        ? 3
+        : 2;
+    final tileMaxH = size.width >= 900 ? 320.0 : 260.0;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: cross,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+        childAspectRatio: 16 / 10,
+      ),
+      itemCount: images.length,
+      itemBuilder: (_, i) => ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          constraints: BoxConstraints(maxHeight: tileMaxH),
+          color: Colors.black.withOpacity(.04),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Image.asset(
+                images[i],
+                fit: BoxFit.contain, // ✅ jamais rognée
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (_, __, ___) => const Center(
+                  child: Text('🖼️ Screenshot', style: TextStyle(color: Colors.black54)),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ScreenshotCarousel extends StatefulWidget {
   final List<String> images;
   const _ScreenshotCarousel({required this.images});
@@ -431,7 +527,7 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   @override
   void initState() {
     super.initState();
-    _controller = PageController(viewportFraction: .92);
+    _controller = PageController(viewportFraction: .95);
   }
 
   @override
@@ -441,18 +537,22 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   }
 
   void _to(int i) {
-    _controller.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+    _controller.animateToPage(
+      i,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final ratio = width < 700 ? 4 / 3 : 16 / 9; // mobile plus haut
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Column(
       children: [
-        AspectRatio(
-          aspectRatio: ratio,
+        SizedBox(
+          width: double.infinity,
+          height: screenWidth * 0.6, // hauteur proportionnelle à l’écran
           child: PageView.builder(
             controller: _controller,
             itemCount: widget.images.length,
@@ -465,7 +565,9 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
                   color: Colors.black.withOpacity(.04),
                   child: Image.asset(
                     widget.images[i],
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain, // ✅ adapte sans couper
+                    width: double.infinity,
+                    height: double.infinity,
                     errorBuilder: (_, __, ___) => const Center(
                       child: Text('🖼️ Screenshot', style: TextStyle(color: Colors.black54)),
                     ),
@@ -501,6 +603,8 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
 }
 
 class _CtaBanner extends StatelessWidget {
+  const _CtaBanner();
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (_, c) {
