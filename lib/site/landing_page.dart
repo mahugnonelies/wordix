@@ -97,7 +97,6 @@ class LandingPage extends StatelessWidget {
                 Text(I18n.t('screenshots_title'), style: Theme.of(context).textTheme.displayMedium),
                 const SizedBox(height: 12),
                 const _ScreenshotCarousel(
-                  // 👉 remplace par tes propres images (voir notes assets)
                   images: [
                     'assets/screenshots/s1.png',
                     'assets/screenshots/s2.png',
@@ -157,9 +156,6 @@ class LandingPage extends StatelessWidget {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const DeletePolicyScreen()));
                     }),
                     _dot(),
-                    _footerLink(I18n.t('legal_about'), (context) {
-                      // Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
-                    }),
                   ],
                 ),
 
@@ -196,78 +192,85 @@ class LandingPage extends StatelessWidget {
 }
 
 // ======================================================
-// Widgets premium
+// Widgets premium & responsives
 // ======================================================
 
 class _HeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final wide = MediaQuery.of(context).size.width > 980;
+    final width = MediaQuery.of(context).size.width;
 
-    return Row(
+    // Breakpoints & tailles (évite les mots cassés sur mobile)
+    final bool isDesktop = width >= 1100;
+    final bool isTablet = width >= 700 && width < 1100;
+    final bool isPhone = width < 700;
+
+    final double titleSize = isDesktop
+        ? 64
+        : (isTablet ? 46 : 34); // tailles adaptées Android phones + tablettes
+    final double subtitleSize = isDesktop
+        ? 18
+        : (isTablet ? 16 : 15);
+    final double ctaSpacing = isPhone ? 10 : 12;
+
+    final Axis dir = isDesktop ? Axis.horizontal : Axis.vertical;
+
+    return Flex(
+      direction: dir,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Texte + CTA
         Expanded(
+          flex: 6,
           child: Column(
-            crossAxisAlignment: wide ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+            crossAxisAlignment: isDesktop ? CrossAxisAlignment.start : CrossAxisAlignment.center,
             children: [
-              Text(
-                I18n.t('hero_title'),
-                textAlign: wide ? TextAlign.start : TextAlign.center,
-                style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                  color: Colors.white,
-                  letterSpacing: .5,
-                  fontWeight: FontWeight.w800,
+              // Contrainte de largeur pour éviter des lignes trop longues
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: isDesktop ? 720 : 560),
+                child: Text(
+                  I18n.t('hero_title'),
+                  textAlign: isDesktop ? TextAlign.start : TextAlign.center,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                  style: Theme.of(context).textTheme.displayLarge!.copyWith(
+                    color: Colors.white,
+                    fontSize: titleSize,
+                    height: 1.05,
+                    letterSpacing: .2,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
-                I18n.t('hero_subtitle'),
-                textAlign: wide ? TextAlign.start : TextAlign.center,
-                style: const TextStyle(color: Colors.white70, fontSize: 16, height: 1.45),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: isDesktop ? 640 : 560),
+                child: Text(
+                  I18n.t('hero_subtitle'),
+                  textAlign: isDesktop ? TextAlign.start : TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: subtitleSize,
+                    height: 1.45,
+                  ),
+                ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 20),
               Wrap(
-                alignment: wide ? WrapAlignment.start : WrapAlignment.center,
-                spacing: 12,
-                runSpacing: 12,
+                alignment: isDesktop ? WrapAlignment.start : WrapAlignment.center,
+                spacing: ctaSpacing,
+                runSpacing: ctaSpacing,
                 children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF111827),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      // TODO: lien vers l’app web (autre projet)
-                    },
-                    icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text(I18n.t('cta_play')),
-                  ),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: BorderSide(color: Colors.white.withOpacity(.8)),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      // TODO: liens store
-                    },
-                    icon: const Icon(Icons.download_rounded),
-                    label: Text(I18n.t('cta_download')),
-                  ),
+                  _primaryCta(context),
+                  _secondaryCta(context),
                 ],
               ),
-              const SizedBox(height: 18),
-
-              // Badges confiance (placeholders)
+              const SizedBox(height: 16),
+              // Badges confiance
               Wrap(
-                spacing: 16,
-                runSpacing: 10,
+                alignment: isDesktop ? WrapAlignment.start : WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 8,
                 children: [
                   _badge(Icons.security_rounded, I18n.t('badge_secure', params: {'x': 'TLS'})),
                   _badge(Icons.update_rounded, I18n.t('badge_updates', params: {'x': 'Weekly'})),
@@ -277,12 +280,14 @@ class _HeroHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 28, height: 28),
+
+        SizedBox(width: isDesktop ? 28 : 0, height: isDesktop ? 0 : 28),
 
         // Image Hero (mockup)
         Expanded(
+          flex: 5,
           child: AspectRatio(
-            aspectRatio: 16 / 10,
+            aspectRatio: isPhone ? 4 / 3 : 16 / 10, // ratio plus haut sur mobile
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(.08),
@@ -319,6 +324,38 @@ class _HeroHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  static Widget _primaryCta(BuildContext context) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF111827),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: () {
+        // TODO: lien vers l’app web (autre projet)
+      },
+      icon: const Icon(Icons.play_arrow_rounded),
+      label: Text(I18n.t('cta_play')),
+    );
+  }
+
+  static Widget _secondaryCta(BuildContext context) {
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: BorderSide(color: Colors.white.withOpacity(.8)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: () {
+        // TODO: liens store
+      },
+      icon: const Icon(Icons.download_rounded),
+      label: Text(I18n.t('cta_download')),
     );
   }
 
@@ -400,7 +437,7 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
   @override
   void initState() {
     super.initState();
-    _controller = PageController(viewportFraction: .9);
+    _controller = PageController(viewportFraction: .92);
   }
 
   @override
@@ -415,10 +452,13 @@ class _ScreenshotCarouselState extends State<_ScreenshotCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final ratio = width < 700 ? 4 / 3 : 16 / 9; // mobile plus haut
+
     return Column(
       children: [
         AspectRatio(
-          aspectRatio: 16 / 9,
+          aspectRatio: ratio,
           child: PageView.builder(
             controller: _controller,
             itemCount: widget.images.length,
