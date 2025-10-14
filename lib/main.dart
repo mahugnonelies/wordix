@@ -16,7 +16,7 @@ import 'site/legal/delete_policy_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // URLs propres sur le Web: https://domain.tld/route (sans #)
-  setUrlStrategy(PathUrlStrategy());
+  usePathUrlStrategy();
 
   await I18n.init();
   runApp(const WordixSite());
@@ -45,11 +45,11 @@ class WordixSite extends StatelessWidget {
 
           // === Routes nommées ===
           routes: {
-            '/':                 (_) => const LandingPage(),
-            '/privacy':          (_) => const PrivacyPolicyScreen(),
-            '/terms':            (_) => const TermsScreen(),
-            '/legal-notice':     (_) => const LegalNoticeScreen(),
-            '/delete-policy':    (_) => const DeletePolicyScreen(),
+            '/':              (_) => const LandingPage(),
+            '/privacy':       (_) => const PrivacyPolicyScreen(),
+            '/terms':         (_) => const TermsScreen(),
+            '/legal-notice':  (_) => const LegalNoticeScreen(),
+            '/delete-policy': (_) => const DeletePolicyScreen(),
           },
 
           // Page 404 Flutter si l’URL ne correspond à aucune route
@@ -62,9 +62,12 @@ class WordixSite extends StatelessWidget {
   }
 }
 
-// Petite page 404 (optionnelle)
+// Petite page 404 (texte bilingue inline pour éviter d'ajouter des clés I18n)
 class _NotFoundPage extends StatelessWidget {
   const _NotFoundPage();
+
+  String _l(String fr, String en) =>
+      (I18n.locale.value.languageCode == 'fr') ? fr : en;
 
   @override
   Widget build(BuildContext context) {
@@ -75,15 +78,24 @@ class _NotFoundPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(I18n.t('not_found_title', fallback: 'Page introuvable'),
-                  style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                _l('Page introuvable', 'Page not found'),
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
-              Text(I18n.t('not_found_body',
-                  fallback: 'La page demandée est introuvable.')),
+              Text(
+                _l(
+                  'La page demandée est introuvable.',
+                  'The requested page could not be found.',
+                ),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 20),
               FilledButton(
-                onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/', (_) => false),
-                child: Text(I18n.t('back_home', fallback: 'Retour à l’accueil')),
+                onPressed: () => Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/', (_) => false),
+                child: Text(_l("Retour à l'accueil", 'Back to home')),
               ),
             ],
           ),
