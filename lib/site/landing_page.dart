@@ -141,19 +141,19 @@ class LandingPage extends StatelessWidget {
                   runSpacing: 4,
                   children: [
                     _footerLink(I18n.t('legal_privacy'), (context) {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()));
+                      Navigator.of(context).pushNamed('/privacy');
                     }),
                     _dot(),
                     _footerLink(I18n.t('legal_terms'), (context) {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsScreen()));
+                      Navigator.of(context).pushNamed('/terms');
                     }),
                     _dot(),
                     _footerLink(I18n.t('legal_mentions'), (context) {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalNoticeScreen()));
+                      Navigator.of(context).pushNamed('/legal-notice');
                     }),
                     _dot(),
                     _footerLink(I18n.t('dp_title'), (context) {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const DeletePolicyScreen()));
+                      Navigator.of(context).pushNamed('/delete-policy');
                     }),
                   ],
                 ),

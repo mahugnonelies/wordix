@@ -1,7 +1,7 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-//import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'i18n.dart';
 import 'site/theme.dart';
@@ -16,7 +16,7 @@ import 'site/legal/delete_policy_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // URLs propres sur le Web: https://domain.tld/route (sans #)
-  //usePathUrlStrategy();
+  usePathUrlStrategy();
 
   await I18n.init();
   runApp(const WordixSite());
