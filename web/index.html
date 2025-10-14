@@ -1,31 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <base href="/" />
   <meta charset="UTF-8" />
   <meta name="description" content="Wordix — jeu de puzzle de lettres bilingue FR/EN. Jouez en ligne, découvrez les niveaux et suivez vos scores.">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Puzzix</title>
+  <title>Wordix</title>
   <link rel="icon" type="image/png" href="icons/Icon-192.png" />
   <!-- PWA meta (optionnel) -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2F7D32">
+  <meta name="theme-color" content="#2F7D32" />
 </head>
+
 <body>
 <noscript>JavaScript is required to run this app.</noscript>
 
+<!-- 🔁 Restaure l'URL demandée (ex: /privacy, /terms) après redirection 404.html -->
+<script>
+  (function () {
+    var route = sessionStorage.getItem('flutter-web-route');
+    if (route) {
+      history.replaceState({}, '', route);
+      sessionStorage.removeItem('flutter-web-route');
+    }
+  })();
+</script>
+
 <!-- Flutter loader (officiel) -->
 <script>
-  // Laisser null : Flutter gère la version du service worker
+  // Laisser null/valeur générée : Flutter gère la version du service worker
   const serviceWorkerVersion = "620202095";
 </script>
 <script src="flutter.js" defer></script>
 <script>
   window.addEventListener('load', function () {
     _flutter.loader.loadEntrypoint({
-      serviceWorker: {
-        serviceWorkerVersion: serviceWorkerVersion,
-      },
+      serviceWorker: { serviceWorkerVersion: serviceWorkerVersion },
       onEntrypointLoaded: function (engineInitializer) {
         engineInitializer.initializeEngine().then(function (appRunner) {
           appRunner.runApp();

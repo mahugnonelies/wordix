@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=/" />
+  <script>
+    // Conserve le chemin et le hash pour Flutter
+    (function() {
+      var redirectTo =
+        "/" +
+        window.location.pathname.replace(/^\//, "") +
+        window.location.search +
+        window.location.hash;
+      sessionStorage.setItem("flutter-web-route", redirectTo);
+      window.location.replace("/");
+    })();
+  </script>
+</head>
+<body>
+<p>Redirecting...</p>
+</body>
+</html>
