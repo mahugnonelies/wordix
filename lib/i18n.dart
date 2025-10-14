@@ -54,7 +54,7 @@ class I18n {
     return text;
   }
 
-  // ====== Dictionnaires ======
+  // ====== Dictionnaires =====
   static final Map<String, Map<String, String>> _strings = {
     'fr': {
       'app_title': 'Wordix',
