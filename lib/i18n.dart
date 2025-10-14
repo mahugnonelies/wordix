@@ -1,3 +1,4 @@
+// lib/i18n.dart
 import 'dart:ui' show PlatformDispatcher, Locale;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,14 +7,17 @@ class I18n {
   static const _prefKey = 'app_locale';
   static const supported = <String>['fr', 'en'];
 
+  // Locale courante observable
   static final ValueNotifier<Locale> locale =
   ValueNotifier<Locale>(const Locale('en'));
 
+  // Pays francophones courants pour auto-sélection FR
   static const Set<String> _frCountries = {
     'FR','BE','CH','CA','LU','MC','HT','CM','CI','BF','NE','SN','ML','TG','BJ','TD','CF','GA','GN',
     'CG','CD','RW','BI','DJ','KM','MG','MU','SC','RE','YT','MA','DZ','TN','MR','NC','PF','WF','GF','PM','LB','VU'
   };
 
+  /// Initialise la langue depuis prefs ou système.
   static Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(_prefKey);
@@ -25,9 +29,11 @@ class I18n {
     final lang = sys.languageCode.toLowerCase();
     final country = (sys.countryCode ?? '').toUpperCase();
     locale.value = (lang == 'fr' || _frCountries.contains(country))
-        ? const Locale('fr') : const Locale('en');
+        ? const Locale('fr')
+        : const Locale('en');
   }
 
+  /// Force une langue et la persiste.
   static Future<void> setLocale(String code) async {
     if (!supported.contains(code)) return;
     final prefs = await SharedPreferences.getInstance();
@@ -35,14 +41,20 @@ class I18n {
     locale.value = Locale(code);
   }
 
-  static String t(String key, {Map<String, String>? params}) {
+  /// Traduction avec paramètres et **secours** (fallback) optionnel.
+  static String t(String key, {Map<String, String>? params, String? fallback}) {
     final lang = locale.value.languageCode;
     final bundle = _strings[lang] ?? _strings['en']!;
-    var value = bundle[key] ?? key;
-    params?.forEach((k, v) => value = value.replaceAll('{$k}', v));
-    return value;
+    var text = bundle[key] ?? fallback ?? key;
+    if (params != null) {
+      params.forEach((k, v) {
+        text = text.replaceAll('{$k}', v);
+      });
+    }
+    return text;
   }
 
+  // ====== Dictionnaires ======
   static final Map<String, Map<String, String>> _strings = {
     'fr': {
       'app_title': 'Wordix',
@@ -325,6 +337,11 @@ class I18n {
       'legal_about': 'À propos',
       'footer_rights': 'Tous droits réservés',
 
+      // 404 / Not found (utilisé par onUnknownRoute)
+      'not_found_title': 'Page introuvable',
+      'not_found_body': 'La page demandée est introuvable.',
+      'back_home': 'Retour à l’accueil',
+
 
     },
 
@@ -603,6 +620,11 @@ class I18n {
       'dp_title': 'Data Deletion Policy',
       'legal_about': 'About',
       'footer_rights': 'All rights reserved',
+
+      // 404
+      'not_found_title': 'Page not found',
+      'not_found_body': 'The requested page could not be found.',
+      'back_home': 'Back to home',
 
 
     },
