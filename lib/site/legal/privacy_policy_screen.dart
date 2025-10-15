@@ -99,6 +99,39 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   _p(I18n.t('privacy_s11_p1')),
                 ]),
 
+                // --- Nouvelles sections (infos collectées / AdMob / partage / sécurité / pubs / droits)
+                _Section(title: I18n.t('privacy_c_title'), children: [
+                  _p(I18n.t('privacy_c_intro')),
+                  const SizedBox(height: 4),
+                  Text(I18n.t('privacy_c_admob_title'), style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                  _p(I18n.t('privacy_c_admob_p1')),
+                  _li(I18n.t('privacy_c_admob_b1')),
+                  _li(I18n.t('privacy_c_admob_b2')),
+                  _li(I18n.t('privacy_c_admob_b3')),
+                  _p(I18n.t('privacy_c_admob_note')),
+                  _p(I18n.t('privacy_c_admob_link')),
+                  const SizedBox(height: 8),
+                  Text(I18n.t('privacy_c_usage_title'), style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                  _p(I18n.t('privacy_c_usage_p1')),
+                ]),
+
+                _Section(title: I18n.t('privacy_share_title'), children: [
+                  _p(I18n.t('privacy_share_p1')),
+                ]),
+
+                _Section(title: I18n.t('privacy_security_title'), children: [
+                  _p(I18n.t('privacy_security_p1')),
+                ]),
+
+                _Section(title: I18n.t('privacy_ads_title'), children: [
+                  _p(I18n.t('privacy_ads_p1')),
+                  _p(I18n.t('privacy_ads_link')),
+                ]),
+
+                _Section(title: I18n.t('privacy_rights_title'), children: [
+                  _p(I18n.t('privacy_rights_p1')),
+                ]),
+
                 _Section(title: I18n.t('privacy_s12_title'), children: [
                   _p(I18n.t('privacy_s12_p1')),
                 ]),

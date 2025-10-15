@@ -149,12 +149,12 @@ class I18n {
       'Nous utilisons des notifications pour vous rappeler de revenir jouer (ex. après 24h d’inactivité). '
           'Vous pouvez les désactiver dans les réglages système de votre appareil à tout moment.',
 
-      'privacy_s12_title': '12. Modifications de cette politique',
+      'privacy_s12_title': '17. Modifications de cette politique',
       'privacy_s12_p1':
       'Nous pouvons mettre à jour cette politique pour refléter des changements légaux, techniques ou opérationnels. '
           'La version publiée dans l’app fait foi ; nous vous invitons à la consulter régulièrement.',
 
-      'privacy_s13_title': '13. Contact',
+      'privacy_s13_title': '18. Contact',
       'privacy_s13_intro': 'Pour toute question ou demande relative à la confidentialité :',
       'privacy_s13_li1': 'E-mail support : {contactEmail}',
       'privacy_s13_li2': 'E-mail confidentialité : {privacyEmail}',
@@ -342,6 +342,32 @@ class I18n {
       'not_found_body': 'La page demandée est introuvable.',
       'back_home': 'Retour à l’accueil',
 
+      // --- Politique : bloc complémentaire (FR) ---
+      'privacy_c_title': '12. Informations collectées pour les publicités',
+      'privacy_c_intro': 'Nous ne collectons aucune information personnelle (comme le nom, l’adresse e-mail, le numéro de téléphone ou la localisation précise). Cependant, certaines données peuvent être collectées automatiquement par des services tiers intégrés pour faire fonctionner et améliorer l’application :',
+      'privacy_c_admob_title': 'a. Google AdMob (publicités)',
+      'privacy_c_admob_p1': 'Nous utilisons Google AdMob pour diffuser des bannières et des annonces interstitielles. AdMob peut collecter et utiliser des identifiants publicitaires anonymes (par exemple, l’ID publicitaire Android) afin de :',
+      'privacy_c_admob_b1': '• diffuser des annonces pertinentes ;',
+      'privacy_c_admob_b2': '• mesurer la performance des publicités ;',
+      'privacy_c_admob_b3': '• limiter le nombre d’affichages d’une même publicité.',
+      'privacy_c_admob_note': 'Ces données ne permettent pas de vous identifier personnellement.',
+      'privacy_c_admob_link': 'En savoir plus : https://policies.google.com/privacy',
+      'privacy_c_usage_title': 'b. Données d’utilisation et de diagnostic',
+      'privacy_c_usage_p1': 'Nous pouvons recevoir automatiquement des informations techniques anonymes (ex. : plantages, erreurs, performance de l’app) afin d’améliorer la stabilité et l’expérience utilisateur.',
+
+      'privacy_share_title': '13. Partage des informations',
+      'privacy_share_p1': 'Nous ne partageons pas de données personnelles. Les seules données éventuellement partagées le sont de manière anonyme et agrégée via les services tiers mentionnés ci-dessus (AdMob / Google Play Services).',
+
+      'privacy_security_title': '14. Sécurité des données',
+      'privacy_security_p1': 'Toutes les données transmises sont chiffrées via HTTPS. Aucune donnée sensible (mot de passe, fichier personnel, photo, localisation précise, etc.) n’est collectée ni stockée.',
+
+      'privacy_ads_title': '15. Publicités',
+      'privacy_ads_p1': 'Les publicités affichées dans Wordix proviennent de Google AdMob, un réseau publicitaire certifié par Google Play. Elles respectent les politiques familiales de Google Play et ne contiennent pas de contenu inapproprié.',
+      'privacy_ads_link': 'Gérez vos préférences publicitaires : https://adssettings.google.com',
+
+      'privacy_rights_title': '16. Droits de l’utilisateur',
+      'privacy_rights_p1': 'Comme aucune donnée personnelle n’est collectée directement par Wordix, nous n’avons pas besoin de procédures de suppression ou d’accès aux données. Toute demande liée à AdMob peut être adressée à Google via sa page de confidentialité.',
+
 
     },
 
@@ -437,11 +463,11 @@ class I18n {
       'We use notifications to remind you to come back and play (e.g., after 24h of inactivity). '
           'You can disable them anytime in your device settings.',
 
-      'privacy_s12_title': '12. Policy changes',
+      'privacy_s12_title': '17. Policy changes',
       'privacy_s12_p1':
       'We may update this policy to reflect legal, technical, or operational changes. The version published in the app prevails; please review it regularly.',
 
-      'privacy_s13_title': '13. Contact',
+      'privacy_s13_title': '18. Contact',
       'privacy_s13_intro': 'For any privacy question or request:',
       'privacy_s13_li1': 'Support email: {contactEmail}',
       'privacy_s13_li2': 'Privacy email: {privacyEmail}',
@@ -625,6 +651,32 @@ class I18n {
       'not_found_title': 'Page not found',
       'not_found_body': 'The requested page could not be found.',
       'back_home': 'Back to home',
+
+      // --- Privacy: extra block (EN) ---
+      'privacy_c_title': '12. Information collected for advertising',
+      'privacy_c_intro': 'We do not collect any personal information (such as name, email address, phone number, or precise location). However, some data may be collected automatically by integrated third-party services to operate and improve the app:',
+      'privacy_c_admob_title': 'a. Google AdMob (ads)',
+      'privacy_c_admob_p1': 'We use Google AdMob to serve banner and interstitial ads. AdMob may collect and use anonymous advertising identifiers (e.g., Android Advertising ID) in order to:',
+      'privacy_c_admob_b1': '• serve relevant ads;',
+      'privacy_c_admob_b2': '• measure ad performance;',
+      'privacy_c_admob_b3': '• limit the number of times the same ad is shown.',
+      'privacy_c_admob_note': 'This data does not personally identify you.',
+      'privacy_c_admob_link': 'Learn more: https://policies.google.com/privacy',
+      'privacy_c_usage_title': 'b. Usage and diagnostics data',
+      'privacy_c_usage_p1': 'We may automatically receive anonymous technical information (e.g., crashes, errors, app performance) to improve stability and user experience.',
+
+      'privacy_share_title': '13. Information sharing',
+      'privacy_share_p1': 'We do not share personal data. Any data that might be shared is anonymous and aggregated through the third-party services mentioned above (AdMob / Google Play Services).',
+
+      'privacy_security_title': '14. Data security',
+      'privacy_security_p1': 'All transmitted data is encrypted via HTTPS. No sensitive data (passwords, personal files, photos, precise location, etc.) is collected or stored.',
+
+      'privacy_ads_title': '15. Advertising',
+      'privacy_ads_p1': 'Ads shown in Wordix come from Google AdMob, a Google Play-certified ad network. They comply with Google Play Families policies and do not contain inappropriate content.',
+      'privacy_ads_link': 'Manage your ad preferences: https://adssettings.google.com',
+
+      'privacy_rights_title': '16. User rights',
+      'privacy_rights_p1': 'Since no personal data is collected directly by Wordix, we do not require data deletion or access procedures. Any request related to AdMob can be addressed to Google via its privacy page.',
 
 
     },
