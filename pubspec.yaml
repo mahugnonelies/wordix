@@ -32,7 +32,11 @@ flutter:
     - assets/screenshots/s2.png
     - assets/screenshots/s3.png
 
-    - assets/legal/privacy.md
-    - assets/legal/terms.md
-    - assets/legal/legal_notice.md
-    - assets/legal/delete_policy.md
+    - assets/legal/privacy_fr.md
+    - assets/legal/terms_fr.md
+    - assets/legal/legal_notice_fr.md
+    - assets/legal/delete_policy_fr.md
+    - assets/legal/privacy_en.md
+    - assets/legal/terms_en.md
+    - assets/legal/legal_notice_en.md
+    - assets/legal/delete_policy_en.md

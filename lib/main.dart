@@ -9,11 +9,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-import 'i18n.dart'; // on conserve ton I18n existant
+import 'i18n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // URLs propres: https://domain/route (sans #)
+  // URLs propres sur le web: https://domain/route  (sans #)
   setUrlStrategy(PathUrlStrategy());
   await I18n.init();
   runApp(const WordixSite());
@@ -22,23 +22,19 @@ void main() async {
 class WordixSite extends StatelessWidget {
   const WordixSite({super.key});
 
-  // Chemins des documents légaux en Markdown
-  static const _privacyPath = 'assets/legal/privacy.md';
-  static const _termsPath   = 'assets/legal/terms.md';
-  static const _legalPath   = 'assets/legal/legal_notice.md';
-  static const _deletePath  = 'assets/legal/delete_policy.md';
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Locale>(
       valueListenable: I18n.locale,
       builder: (_, locale, __) {
-        final theme = buildSiteTheme(); // défini plus bas (fusionné depuis theme.dart)
+        final theme = buildSiteTheme();
 
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: I18n.t('app_title'),
-          theme: theme.copyWith(textTheme: GoogleFonts.interTextTheme(theme.textTheme)),
+          theme: theme.copyWith(
+            textTheme: GoogleFonts.interTextTheme(theme.textTheme),
+          ),
           locale: locale,
           supportedLocales: const [Locale('fr'), Locale('en')],
           localizationsDelegates: const [
@@ -50,10 +46,24 @@ class WordixSite extends StatelessWidget {
           // === Routes ===
           routes: {
             '/':              (_) => const LandingPage(),
-            '/privacy':       (_) => const _MarkdownPage(title: 'Politique de confidentialité', assetPath: _privacyPath),
-            '/terms':         (_) => const _MarkdownPage(title: 'Conditions d’utilisation', assetPath: _termsPath),
-            '/legal-notice':  (_) => const _MarkdownPage(title: 'Mentions légales', assetPath: _legalPath),
-            '/delete-policy': (_) => const _MarkdownPage(title: 'Suppression des données', assetPath: _deletePath),
+
+            // Chaque page charge automatiquement privacy_fr.md / privacy_en.md
+            '/privacy':       (_) => const _MarkdownPage.localized(
+              titleKey: 'legal_privacy',
+              baseName: 'privacy', // assets/legal/privacy_fr.md / _en.md
+            ),
+            '/terms':         (_) => const _MarkdownPage.localized(
+              titleKey: 'legal_terms',
+              baseName: 'terms',
+            ),
+            '/legal-notice':  (_) => const _MarkdownPage.localized(
+              titleKey: 'legal_mentions',
+              baseName: 'legal_notice',
+            ),
+            '/delete-policy': (_) => const _MarkdownPage.localized(
+              titleKey: 'dp_title',
+              baseName: 'delete_policy',
+            ),
           },
 
           onUnknownRoute: (_) => MaterialPageRoute(builder: (_) => const _NotFoundPage()),
@@ -64,27 +74,45 @@ class WordixSite extends StatelessWidget {
 }
 
 /* -------------------------------------------------------
- *  PAGE MARKDOWN générique (comme GoLieux)
+ *  PAGE MARKDOWN (multilingue auto)
  * -----------------------------------------------------*/
 class _MarkdownPage extends StatelessWidget {
-  final String title;
-  final String assetPath;
-  const _MarkdownPage({required this.title, required this.assetPath});
+  final String titleKey;
+  final String baseName;
+
+  const _MarkdownPage.localized({
+    required this.titleKey,
+    required this.baseName,
+    super.key,
+  });
 
   Future<String> _load() async {
-    try {
-      return await rootBundle.loadString(assetPath);
-    } catch (_) {
-      return '# Oups…\n\n'
-          'Impossible de charger ce document (`$assetPath`).\n\n'
-          '- Vérifie que le fichier existe dans *assets/*\n'
-          '- Et qu’il est listé dans **pubspec.yaml**.\n';
+    final lang = I18n.locale.value.languageCode; // 'fr' ou 'en'
+    // Ordre de recherche : _<lang>.md → _en.md → .md (sans suffixe)
+    final candidates = <String>[
+      'assets/legal/${baseName}_${lang}.md',
+      'assets/legal/${baseName}_en.md',
+      'assets/legal/${baseName}.md',
+    ];
+    for (final path in candidates) {
+      try {
+        return await rootBundle.loadString(path);
+      } catch (_) {/* continue */}
     }
+    // Message d'erreur friendly
+    return '# Oups…\n\n'
+        'Impossible de charger ce document.\n\n'
+        'Fichiers attendus (dans l’ordre) :\n'
+        '- assets/legal/${baseName}_${lang}.md\n'
+        '- assets/legal/${baseName}_en.md\n'
+        '- assets/legal/${baseName}.md\n\n'
+        'Vérifie qu’ils existent et qu’ils sont listés dans **pubspec.yaml**.';
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final title = I18n.t(titleKey);
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: FutureBuilder<String>(
@@ -153,7 +181,7 @@ class _NotFoundPage extends StatelessWidget {
 }
 
 /* ======================================================
- *  LANDING (fusion de landing_page.dart + components.dart)
+ *  LANDING (contenu existant)
  * ====================================================*/
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -211,7 +239,7 @@ class LandingPage extends StatelessWidget {
                   mainAxisSpacing: 16,
                   childAspectRatio: 3.2,
                   children: const [
-                    _FeatureCard(icon: Icons.translate_rounded, titleKey: 'feature_i18n',     subtitleKey: 'feature_i18n_desc'),
+                    _FeatureCard(icon: Icons.translate_rounded,      titleKey: 'feature_i18n',     subtitleKey: 'feature_i18n_desc'),
                     _FeatureCard(icon: Icons.sports_esports_rounded, titleKey: 'feature_gameplay', subtitleKey: 'feature_gameplay_desc'),
                     _FeatureCard(icon: Icons.star_rate_rounded,      titleKey: 'feature_progress', subtitleKey: 'feature_progress_desc'),
                   ],
@@ -307,7 +335,7 @@ class LandingPage extends StatelessWidget {
   static Widget _dot() => const Text('•', style: TextStyle(color: Colors.black38));
 }
 
-/* ------------------ Composants fusionnés ------------------ */
+/* ------------------ Composants ------------------ */
 class Section extends StatelessWidget {
   final Widget child;
   final Color? color;
@@ -859,7 +887,7 @@ class _SmartImageState extends State<_SmartImage> {
 }
 
 /* -------------------------------------------------------
- *  Thème (fusion de theme.dart)
+ *  Thème
  * -----------------------------------------------------*/
 ThemeData buildSiteTheme() {
   final seed = const Color(0xFF0EA5E9);
