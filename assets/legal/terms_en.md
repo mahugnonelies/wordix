@@ -4,8 +4,7 @@
 > **Publisher:** MAHUGNON SERVICES LTD  
 > **Contact:** support@wordixapp.com
 
-> **Last update:** 2025-01-01  
-> *(Update this date when you change the document.)*
+> **Last update:** 2025-10-15
 
 ---
 

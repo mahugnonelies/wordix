@@ -6,8 +6,7 @@
 > **Adresse du siège social :** 20 Wenlock Road, London, N1 7GU, United Kingdom  
 > **E-mail :** support@wordixapp.com
 
-> **Dernière mise à jour :** 2025-01-01  
-> *(Mets cette date à jour si tu modifies le document.)*
+> **Dernière mise à jour :** 2025-10-15  
 
 ---
 

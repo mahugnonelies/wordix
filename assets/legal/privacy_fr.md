@@ -3,8 +3,7 @@
 Cette politique décrit comment **MAHUGNON SERVICES LTD** traite vos données lors de l’utilisation de **Wordix**.  
 Elle est conforme au **UK GDPR (Data Protection Act 2018)** et, le cas échéant, au **RGPD (UE)**.
 
-> **Dernière mise à jour :** 2025-01-01  
-> *(Mettez cette date à jour lorsque vous modifiez le document.)*
+> **Dernière mise à jour :** 2025-10-15 
 
 ---
 

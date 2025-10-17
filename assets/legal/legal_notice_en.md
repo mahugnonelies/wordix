@@ -6,8 +6,7 @@
 > **Registered office address:** 20 Wenlock Road, London, N1 7GU, United Kingdom  
 > **Email:** support@wordixapp.com
 
-> **Last update:** 2025-01-01  
-> *(Update this date when you change the document.)*
+> **Last update:** 2025-10-15
 
 ---
 
