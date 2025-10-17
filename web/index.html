@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <!-- Base absolue requise pour les routes Flutter Web (PathUrlStrategy) -->
   <base href="/" />
+
   <meta charset="UTF-8" />
-  <meta name="description" content="Wordix — jeu de puzzle de lettres bilingue FR/EN. Jouez en ligne, découvrez les niveaux et suivez vos scores.">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Wordix</title>
-  <link rel="icon" type="image/png" href="icons/Icon-192.png" />
-  <!-- PWA meta (optionnel) -->
-  <link rel="manifest" href="manifest.json">
+  <meta name="description" content="Wordix — jeu de puzzle de lettres bilingue FR/EN. Jouez en ligne, découvrez les niveaux et suivez vos scores." />
+  <meta name="robots" content="index,follow" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#2F7D32" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="icons/Icon-192.png" />
+  <!-- Optionnel : iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
 <body>
 <noscript>JavaScript is required to run this app.</noscript>
 
-<!-- 🔁 Restaure l'URL demandée (ex: /privacy, /terms) après redirection 404.html -->
+<!-- Restaure l’URL demandée (ex: /privacy) après redirection depuis 404.html -->
 <script>
   (function () {
     var route = sessionStorage.getItem('flutter-web-route');
@@ -26,9 +36,9 @@
   })();
 </script>
 
-<!-- Flutter loader (officiel) -->
+<!-- Flutter loader -->
 <script>
-  // Laisser null/valeur générée : Flutter gère la version du service worker
+  // Laisse null : Flutter gère la version du service worker au build
   const serviceWorkerVersion = null;
 </script>
 <script src="flutter.js" defer></script>
@@ -40,7 +50,7 @@
         engineInitializer.initializeEngine().then(function (appRunner) {
           appRunner.runApp();
         });
-      }
+      },
     });
   });
 </script>
